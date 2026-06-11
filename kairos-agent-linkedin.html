@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kairos · Agent LinkedIn</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+:root {
+  --or: #E8541A;
+  --or-dim: rgba(232,84,26,0.09);
+  --or-brd: rgba(232,84,26,0.25);
+  --noir: #FFFFFF;
+  --noir2: #F4F5F7;
+  --noir3: #EBEDF2;
+  --noir4: #E2E4EA;
+  --blanc: #1A1F2E;
+  --blanc2: #2E3445;
+  --muted: #7A8099;
+  --muted2: #A0A8BF;
+  --vert: #3A8C5A;
+  --bleu: #3A6E96;
+  --rouge: #B03030;
+  --col-d: #E8541A;
+  --col-e: #3A6E96;
+  --col-q: #3A8C5A;
+  --col-o: #B07820;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+body{background:var(--noir);color:var(--blanc);font-family:'IBM Plex Sans',sans-serif;font-weight:300;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;gap:13px;padding:11px 20px;border-bottom:1px solid rgba(0,0,0,0.08);flex-shrink:0;position:relative;background:#FFFFFF;}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent);opacity:.5;}
+
+.k-logo{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.k-mark{width:24px;height:24px;}
+.k-mark svg{width:100%;height:100%;}
+.k-name{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+.k-name em{color:var(--or);font-style:normal;}
+.k-sep{width:1px;height:18px;background:rgba(0,0,0,0.15);margin:0 2px;}
+.k-sub{font-size:.58rem;color:var(--muted);letter-spacing:.13em;text-transform:uppercase;}
+
+.hd-legend{display:flex;gap:9px;margin-left:auto;}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:.56rem;color:var(--muted);letter-spacing:.04em;}
+.ldot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.ldot-d{background:var(--col-d);}
+.ldot-e{background:var(--col-e);}
+.ldot-q{background:var(--col-q);}
+.ldot-o{background:var(--col-o);}
+
+.hd-badge{display:flex;align-items:center;gap:5px;background:var(--or-dim);border:1px solid var(--or-brd);border-radius:3px;padding:3px 9px;font-size:.56rem;color:var(--or);font-family:'Syne',sans-serif;letter-spacing:.08em;font-weight:600;flex-shrink:0;}
+.hd-pulse{width:4px;height:4px;border-radius:50%;background:var(--or);animation:pulse 2s ease-in-out infinite;}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── WORKSPACE ── */
+.workspace{display:grid;grid-template-columns:290px 1fr;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{border-right:1px solid rgba(0,0,0,0.08);display:flex;flex-direction:column;overflow:hidden;background:var(--noir2);}
+
+/* Onglets sidebar */
+.sb-tabs{display:flex;border-bottom:1px solid rgba(0,0,0,0.07);flex-shrink:0;}
+.sb-tab{flex:1;padding:8px 3px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.57rem;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;transition:all .14s;}
+.sb-tab.active{color:var(--or);border-bottom-color:var(--or);}
+.sb-tab:hover:not(.active){color:var(--blanc2);}
+
+/* Contrôles clé API */
+.sb-api{padding:9px 10px;border-bottom:1px solid rgba(0,0,0,0.07);flex-shrink:0;}
+.ctrl-lbl{font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;}
+.api-row{display:grid;grid-template-columns:1fr auto;gap:4px;}
+.api-input{width:100%;background:var(--noir3);border:1px solid rgba(0,0,0,0.09);border-radius:4px;padding:5px 8px;color:var(--blanc);font-family:'IBM Plex Sans',sans-serif;font-size:.64rem;outline:none;transition:border-color .14s;}
+.api-input:focus{border-color:var(--or);}
+.api-input::placeholder{color:var(--muted2);}
+.api-btn{background:var(--or);border:none;border-radius:4px;padding:5px 8px;color:#fff;font-size:.62rem;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;transition:opacity .14s;}
+.api-btn:hover{opacity:.82;}
+
+/* Bloc identité associé */
+.sb-identity{padding:9px 10px;border-bottom:1px solid rgba(0,0,0,0.07);flex-shrink:0;}
+.identity-custom{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;padding:7px 9px;background:var(--noir3);border:1px solid rgba(0,0,0,0.09);border-radius:5px;}
+.identity-custom-lbl{font-size:.5rem;text-transform:uppercase;letter-spacing:.1em;color:var(--or);margin-bottom:2px;font-family:'Syne',sans-serif;font-weight:600;}
+.id-row{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.id-input{background:var(--noir4);border:1px solid rgba(0,0,0,0.09);border-radius:3px;padding:4px 7px;color:var(--blanc);font-family:'IBM Plex Sans',sans-serif;font-size:.64rem;outline:none;transition:border-color .14s;width:100%;}
+.id-input:focus{border-color:var(--or);}
+.id-input::placeholder{color:var(--muted2);}
+
+.assoc-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.assoc-btn{padding:5px 4px;background:none;border:1px solid rgba(0,0,0,0.08);border-radius:4px;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.6rem;cursor:pointer;transition:all .14s;text-align:center;line-height:1.3;}
+.assoc-btn:hover{border-color:var(--or-brd);color:var(--blanc2);}
+.assoc-btn.active{background:var(--or-dim);border-color:var(--or);color:var(--or);}
+.assoc-fn{display:block;font-size:.5rem;color:var(--muted);margin-top:1px;}
+.assoc-btn.active .assoc-fn{color:rgba(242,101,34,.6);}
+
+/* Onglets fonctions */
+.fn-tabs{display:flex;flex-shrink:0;border-bottom:1px solid rgba(0,0,0,0.07);overflow-x:auto;scrollbar-width:none;}
+.fn-tabs::-webkit-scrollbar{display:none;}
+.fn-tab{flex-shrink:0;padding:7px 11px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:.57rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;transition:all .14s;white-space:nowrap;}
+.fn-tab:hover{color:var(--blanc2);}
+.fn-tab.active{color:var(--or);border-bottom-color:var(--or);}
+
+/* Liste thèmes */
+.themes-scroll{flex:1;overflow-y:auto;padding:7px 7px;}
+
+.reg-lbl{display:flex;align-items:center;gap:5px;font-family:'Syne',sans-serif;font-size:.49rem;text-transform:uppercase;letter-spacing:.11em;color:var(--muted2);padding:7px 4px 4px;border-top:1px solid rgba(0,0,0,0.05);margin-top:3px;}
+.reg-lbl:first-child{border-top:none;margin-top:0;padding-top:2px;}
+.reg-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+.theme-btn{width:100%;background:none;border:1px solid transparent;border-radius:4px;padding:6px 9px;text-align:left;cursor:pointer;margin-bottom:2px;transition:all .14s;display:flex;align-items:flex-start;gap:6px;}
+.theme-btn:hover{background:rgba(255,255,255,0.025);border-color:rgba(0,0,0,0.08);}
+.theme-btn.active{background:var(--or-dim);border-color:var(--or-brd);}
+.theme-btn .tb-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.theme-btn .tb-lbl{font-size:.68rem;color:var(--blanc2);line-height:1.3;}
+.theme-btn .tb-hint{display:block;font-size:.56rem;color:var(--muted);margin-top:1px;line-height:1.3;}
+.theme-btn.active .tb-lbl{color:var(--blanc);}
+
+/* Tab thème libre */
+.free-tab-content{flex:1;overflow-y:auto;padding:10px;}
+.free-textarea{width:100%;background:var(--noir3);border:1px solid rgba(0,0,0,0.09);border-radius:4px;padding:8px 10px;color:var(--blanc);font-family:'IBM Plex Sans',sans-serif;font-size:.72rem;line-height:1.6;outline:none;resize:vertical;min-height:70px;transition:border-color .14s;}
+.free-textarea:focus{border-color:var(--or);}
+.free-textarea::placeholder{color:var(--muted2);}
+.free-select{width:100%;background:var(--noir3);border:1px solid rgba(0,0,0,0.09);border-radius:4px;padding:6px 9px;color:var(--blanc);font-family:'IBM Plex Sans',sans-serif;font-size:.68rem;outline:none;cursor:pointer;appearance:none;margin-top:5px;}
+.free-gen-btn{width:100%;background:var(--or);border:none;border-radius:4px;padding:8px;color:#fff;font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:opacity .14s;margin-top:6px;}
+.free-gen-btn:hover{opacity:.84;}
+.free-gen-btn:disabled{opacity:.3;cursor:not-allowed;}
+.saved-lbl{font-size:.49rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin:10px 0 5px;}
+.saved-btn{width:100%;background:none;border:1px solid rgba(0,0,0,0.08);border-radius:4px;padding:6px 9px;text-align:left;cursor:pointer;margin-bottom:3px;transition:all .14s;}
+.saved-btn:hover{background:rgba(255,255,255,0.03);border-color:var(--or-brd);}
+.saved-btn-title{font-size:.68rem;color:var(--blanc2);display:block;line-height:1.3;}
+.saved-btn-meta{font-size:.56rem;color:var(--muted);margin-top:1px;display:block;}
+
+/* Tab historique */
+.hist-tab-content{flex:1;overflow-y:auto;padding:10px;}
+.hist-search{width:100%;background:var(--noir3);border:1px solid rgba(0,0,0,0.09);border-radius:4px;padding:6px 9px;color:var(--blanc);font-family:'IBM Plex Sans',sans-serif;font-size:.68rem;outline:none;margin-bottom:5px;transition:border-color .14s;}
+.hist-search:focus{border-color:var(--or);}
+.hist-search::placeholder{color:var(--muted2);}
+
+/* Tab validés */
+.val-tab-content{flex:1;overflow-y:auto;padding:10px;}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--noir);}
+
+/* Welcome */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:36px;}
+.wlc-glyph{font-family:'Syne',sans-serif;font-size:3.6rem;font-weight:800;color:rgba(242,101,34,.09);letter-spacing:-.04em;line-height:1;margin-bottom:2px;}
+.wlc-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--blanc);letter-spacing:.02em;}
+.wlc-sub{font-size:.75rem;line-height:1.85;color:var(--muted);max-width:360px;}
+.wlc-sub strong{color:var(--or);font-weight:500;}
+.wlc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:400px;width:100%;margin-top:6px;}
+.wlc-card{background:var(--noir2);border:1px solid rgba(0,0,0,0.07);border-radius:5px;padding:9px 11px;text-align:left;}
+.wlc-card-lbl{font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--or);font-family:'Syne',sans-serif;font-weight:600;margin-bottom:3px;}
+.wlc-card-txt{font-size:.67rem;color:var(--muted);line-height:1.45;}
+
+/* Loader */
+.loader{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.loader.vis{display:flex;}
+.spinner{width:32px;height:32px;border:1.5px solid rgba(0,0,0,0.1);border-top-color:var(--or);border-radius:50%;animation:spin .85s linear infinite;}
+.loader-txt{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:500;color:var(--muted);letter-spacing:.06em;animation:pulse 2s ease-in-out infinite;}
+
+/* Scripts panel */
+.scripts-panel{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.scripts-panel.vis{display:flex;}
+
+.sp-header{padding:10px 20px;border-bottom:1px solid rgba(0,0,0,0.07);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.sp-title{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;color:var(--blanc);}
+.sp-meta{font-size:.56rem;color:var(--muted);margin-top:2px;letter-spacing:.04em;}
+.regen-btn{margin-left:auto;background:none;border:1px solid rgba(0,0,0,0.09);border-radius:4px;padding:4px 10px;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.62rem;cursor:pointer;transition:all .14s;}
+.regen-btn:hover{border-color:var(--or-brd);color:var(--or);}
+
+.script-tabs{display:flex;padding:6px 20px 0;gap:2px;border-bottom:1px solid rgba(0,0,0,0.07);flex-shrink:0;}
+.stab{padding:5px 11px;background:none;border:1px solid transparent;border-bottom:none;border-radius:4px 4px 0 0;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.62rem;cursor:pointer;transition:all .14s;white-space:nowrap;}
+.stab:hover{color:var(--blanc2);background:rgba(255,255,255,0.02);}
+.stab.active{color:var(--blanc);background:var(--noir2);border-color:rgba(0,0,0,0.08);border-bottom-color:var(--noir2);margin-bottom:-1px;}
+
+.script-content{flex:1;overflow-y:auto;padding:14px 20px;}
+.script-pane{display:none;animation:fadeUp .17s ease;}
+.script-pane.active{display:block;}
+
+/* Script card */
+.sc-card{background:var(--noir2);border:1px solid rgba(0,0,0,0.1);border-radius:7px;overflow:hidden;margin-bottom:11px;}
+.sc-head{padding:8px 12px;background:var(--noir3);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,0.07);}
+.sc-lbl{font-family:'Syne',sans-serif;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--or);font-weight:700;}
+.sc-actions{display:flex;gap:4px;flex-wrap:wrap;}
+.sc-btn{background:var(--or-dim);border:1px solid var(--or-brd);border-radius:3px;padding:2px 7px;color:var(--or);font-family:'IBM Plex Sans',sans-serif;font-size:.57rem;cursor:pointer;transition:background .14s;white-space:nowrap;}
+.sc-btn:hover{background:rgba(242,101,34,.2);}
+.sc-btn.ok{color:var(--vert);border-color:var(--vert);background:rgba(90,158,111,.1);}
+.sc-btn-edit{background:rgba(90,139,174,.12);border:1px solid rgba(90,139,174,.25);color:var(--bleu);}
+.sc-btn-edit:hover{background:rgba(90,139,174,.22);}
+.sc-btn-like{background:rgba(90,158,111,.12);border:1px solid rgba(90,158,111,.25);color:var(--vert);}
+.sc-btn-like:hover{background:rgba(90,158,111,.22);}
+.sc-btn-dislike{background:rgba(200,80,80,.1);border:1px solid rgba(200,80,80,.25);color:var(--rouge);}
+.sc-btn-dislike:hover{background:rgba(200,80,80,.2);}
+.sc-btn-val{background:var(--or);border:none;color:#fff;font-family:'Syne',sans-serif;font-weight:600;letter-spacing:.04em;}
+.sc-btn-val:hover{opacity:.84;}
+
+.feedback-zone{display:none;padding:9px 13px;background:rgba(200,80,80,.05);border-bottom:1px solid rgba(0,0,0,0.07);}
+.feedback-zone-lbl{font-size:.55rem;text-transform:uppercase;letter-spacing:.07em;color:var(--rouge);margin-bottom:5px;}
+.feedback-textarea{width:100%;padding:7px 9px;font-size:.7rem;font-family:'IBM Plex Sans',sans-serif;background:var(--noir3);border:1px solid rgba(200,80,80,.25);border-radius:4px;color:var(--blanc);resize:vertical;min-height:46px;outline:none;}
+.feedback-actions{display:flex;gap:5px;justify-content:flex-end;margin-top:5px;}
+.fb-cancel{background:none;border:1px solid rgba(0,0,0,0.09);border-radius:3px;padding:3px 9px;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.62rem;cursor:pointer;}
+.fb-save{background:var(--rouge);border:none;border-radius:3px;padding:3px 9px;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:.62rem;font-weight:500;cursor:pointer;}
+
+.sc-body{padding:12px 14px;font-size:.78rem;line-height:1.82;white-space:pre-wrap;color:var(--blanc2);}
+.sc-edit-area{display:none;width:100%;padding:11px 13px;font-size:.74rem;line-height:1.8;font-family:'IBM Plex Sans',sans-serif;background:var(--noir2);border:none;border-top:1px solid rgba(0,0,0,0.07);color:var(--blanc);resize:vertical;min-height:160px;outline:none;}
+.sc-edit-actions{display:none;padding:7px 12px;border-top:1px solid rgba(0,0,0,0.07);gap:6px;justify-content:flex-end;background:rgba(0,0,0,.1);}
+.ea-cancel{background:none;border:1px solid rgba(0,0,0,0.09);border-radius:3px;padding:4px 10px;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.64rem;cursor:pointer;}
+.ea-save{background:var(--or);border:none;border-radius:3px;padding:4px 10px;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:.64rem;font-weight:500;cursor:pointer;}
+
+.sc-footer{padding:9px 14px 12px;border-top:1px solid rgba(0,0,0,0.07);background:rgba(0,0,0,.13);}
+.sc-comment-box{background:rgba(242,101,34,.05);border-left:2px solid var(--or);padding:7px 11px;border-radius:0 4px 4px 0;margin-bottom:6px;}
+.sc-comment-lbl{font-size:.52rem;text-transform:uppercase;letter-spacing:.07em;color:var(--or);margin-bottom:3px;font-weight:600;font-family:'Syne',sans-serif;}
+.sc-comment-txt{font-size:.68rem;color:var(--muted);font-style:italic;line-height:1.5;}
+.sc-hashtags{font-size:.64rem;color:var(--or);}
+
+/* Enjeux & obligations badge */
+.enjeux-zone{padding:10px 14px;border-top:1px solid rgba(0,0,0,0.05);background:rgba(90,139,174,.04);}
+.enjeux-lbl{font-size:.52rem;text-transform:uppercase;letter-spacing:.07em;color:var(--bleu);margin-bottom:5px;font-family:'Syne',sans-serif;font-weight:600;}
+.enjeux-item{font-size:.68rem;color:var(--muted);line-height:1.55;display:flex;gap:5px;margin-bottom:3px;}
+.enjeux-item::before{content:'›';color:var(--bleu);flex-shrink:0;}
+
+/* Visuel card */
+.vis-card{background:var(--noir3);border:1px solid rgba(0,0,0,0.07);border-radius:7px;padding:12px;margin-bottom:3px;}
+.vis-head{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.vis-badge{background:var(--or-dim);border:1px solid var(--or-brd);border-radius:2px;padding:2px 6px;font-family:'Syne',sans-serif;font-size:.52rem;text-transform:uppercase;letter-spacing:.08em;color:var(--or);font-weight:700;}
+.fmt-badge{padding:2px 6px;border-radius:2px;font-size:.52rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;font-family:'Syne',sans-serif;}
+.fmt-texte{background:rgba(90,139,174,.1);color:var(--bleu);border:1px solid rgba(90,139,174,.22);}
+.fmt-photo{background:rgba(184,148,107,.1);color:#B8946B;border:1px solid rgba(184,148,107,.22);}
+.fmt-carrousel{background:rgba(90,158,111,.1);color:var(--vert);border:1px solid rgba(90,158,111,.22);}
+.vis-desc{font-size:.73rem;line-height:1.65;color:var(--blanc2);margin-bottom:8px;}
+.vis-caption{background:var(--noir);border-left:2px solid var(--or);padding:7px 11px;font-size:.72rem;color:var(--blanc);border-radius:0 4px 4px 0;font-style:italic;line-height:1.5;}
+
+/* Footer affinage */
+.chat-footer{border-top:1px solid rgba(0,0,0,0.07);padding:8px 20px;display:none;gap:5px;flex-shrink:0;align-items:center;background:var(--noir2);}
+.chat-footer.vis{display:flex;}
+.rf-select{background:var(--noir3);border:1px solid rgba(0,0,0,0.09);border-radius:4px;padding:0 8px;color:var(--blanc2);font-family:'IBM Plex Sans',sans-serif;font-size:.67rem;outline:none;cursor:pointer;height:34px;min-width:76px;appearance:none;}
+.rf-input{flex:1;background:var(--noir3);border:1px solid rgba(0,0,0,0.09);border-radius:4px;padding:0 11px;color:var(--blanc);font-family:'IBM Plex Sans',sans-serif;font-size:.73rem;outline:none;transition:border-color .14s;height:34px;}
+.rf-input:focus{border-color:var(--or);}
+.rf-input::placeholder{color:var(--muted2);}
+.rf-btn{background:var(--or);border:none;border-radius:4px;padding:0 13px;height:34px;color:#fff;font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;cursor:pointer;letter-spacing:.04em;transition:opacity .14s;white-space:nowrap;}
+.rf-btn:hover{opacity:.84;}
+
+/* Feedback modal */
+.fb-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;}
+.fb-modal{background:var(--noir2);max-width:540px;width:100%;max-height:80vh;border-radius:8px;border:1px solid rgba(0,0,0,0.09);display:flex;flex-direction:column;overflow:hidden;}
+.fb-modal-head{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;}
+.fb-modal-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600;color:var(--blanc);}
+.fb-modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.95rem;}
+.fb-modal-body{flex:1;overflow-y:auto;padding:13px 16px;}
+.fb-modal-foot{padding:9px 16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;}
+
+/* Feedback badge */
+.fb-badge{margin-top:7px;padding:5px 8px;background:rgba(242,101,34,.05);border:1px solid var(--or-brd);border-radius:4px;font-size:.57rem;color:var(--muted);cursor:pointer;}
+.fb-badge:hover{background:var(--or-dim);}
+
+/* Validés tab */
+.val-item{background:var(--noir2);border:1px solid rgba(0,0,0,0.08);border-radius:5px;padding:8px 10px;margin-bottom:6px;}
+.val-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:5px;}
+.val-item-title{font-size:.68rem;color:var(--blanc2);font-weight:500;}
+.val-item-meta{font-size:.55rem;color:var(--muted);}
+.val-metrics{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.val-metrics label{font-size:.52rem;color:var(--muted);}
+.val-metric-input{width:58px;font-size:.62rem;background:var(--noir);border:1px solid rgba(0,0,0,0.09);padding:2px 5px;border-radius:3px;color:var(--blanc);outline:none;}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:2px;}
+
+/* Veille juridique */
+.veille-fn-btn{padding:5px 4px;background:none;border:1px solid rgba(255,255,255,0.07);border-radius:4px;color:var(--muted);font-family:'IBM Plex Sans',sans-serif;font-size:.62rem;cursor:pointer;transition:all .14s;text-align:center;}
+.veille-fn-btn:hover{border-color:var(--or-brd);color:var(--blanc2);}
+.veille-fn-btn.running{border-color:var(--or);color:var(--or);opacity:.6;cursor:wait;}
+.veille-fn-btn.done{border-color:var(--vert);color:var(--vert);background:rgba(90,158,111,.1);}
+.veille-entry{background:var(--noir3);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:8px 10px;margin-bottom:6px;}
+.veille-entry-fn{font-family:'Syne',sans-serif;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--or);margin-bottom:4px;}
+.veille-entry-date{font-size:.52rem;color:var(--muted);margin-bottom:5px;}
+.veille-entry-item{font-size:.64rem;color:var(--blanc2);line-height:1.55;display:flex;gap:5px;margin-bottom:3px;}
+.veille-entry-item::before{content:'›';color:var(--col-e);flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="k-logo">
+    <div class="k-mark" style="width:32px;height:32px;">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cercle orange ouvert (ouverture en haut à droite) -->
+        <path d="M 55 5 A 47 47 0 1 0 95 55" stroke="#E8541A" stroke-width="8" fill="none" stroke-linecap="round"/>
+        <!-- Courbe de croissance (graphe linéaire) -->
+        <polyline points="28,62 42,48 56,52 72,30" stroke="#1A1F2E" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Points du graphe -->
+        <circle cx="28" cy="62" r="4" fill="#1A1F2E"/>
+        <circle cx="42" cy="48" r="4" fill="#1A1F2E"/>
+        <circle cx="56" cy="52" r="4" fill="#1A1F2E"/>
+        <!-- Flèche finale orange -->
+        <circle cx="72" cy="30" r="4" fill="#E8541A"/>
+        <line x1="72" y1="30" x2="88" y2="16" stroke="#E8541A" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="k-name" style="color:#1A1F2E;letter-spacing:.1em;">KAIROS</span>
+    <span style="font-size:.52rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-family:'IBM Plex Sans',sans-serif;align-self:flex-end;margin-bottom:1px;margin-left:-2px;">LEVIER DE CROISSANCE</span>
+  </div>
+  <div class="k-sep"></div>
+  <span class="k-sub">Agent LinkedIn · PME/TPE</span>
+  <div class="hd-legend">
+    <div class="legend-item"><div class="ldot ldot-d"></div>Douleur</div>
+    <div class="legend-item"><div class="ldot ldot-e"></div>Expertise</div>
+    <div class="legend-item"><div class="ldot ldot-q"></div>Question</div>
+    <div class="legend-item"><div class="ldot ldot-o"></div>Obligation</div>
+  </div>
+  <div class="hd-badge"><div class="hd-pulse"></div>PROTOTYPE v3</div>
+</header>
+
+<div class="workspace">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+
+    <div class="sb-tabs">
+      <button class="sb-tab active" onclick="switchSbTab('themes')">Thèmes</button>
+      <button class="sb-tab" onclick="switchSbTab('libre')">Libre</button>
+      <button class="sb-tab" onclick="switchSbTab('hist')">Historique</button>
+      <button class="sb-tab" onclick="switchSbTab('val')">Validés</button>
+      <button class="sb-tab" onclick="switchSbTab('veille')" style="color:var(--or)">⚖ Veille</button>
+    </div>
+
+    <!-- Clé API -->
+    <div class="sb-api">
+      <div class="ctrl-lbl">Clé API Anthropic</div>
+      <div class="api-row">
+        <input id="apiKeyField" type="password" class="api-input" placeholder="sk-ant-…"/>
+        <button id="apiKeyBtn" class="api-btn" onclick="saveApiKey()">✓</button>
+      </div>
+    </div>
+
+    <!-- Identité / Voix -->
+    <div class="sb-identity" id="sbIdentity">
+      <div class="ctrl-lbl" style="margin-bottom:5px">Voix du contenu</div>
+
+      <!-- 3 modes de voix -->
+      <div class="assoc-grid" id="assocGrid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:8px;">
+        <button class="assoc-btn active" data-mode="associe" data-name="" data-fn="" onclick="setVoice(this)" style="grid-column:span 1">
+          Associé·e
+          <span class="assoc-fn">Signataire nommé·e</span>
+        </button>
+        <button class="assoc-btn" data-mode="kairos-dirigeant" data-name="Kairos" data-fn="Réseau de direction externalisée" onclick="setVoice(this)">
+          Kairos →<br>Dirigeants
+          <span class="assoc-fn">Attirer des clients PME</span>
+        </button>
+        <button class="assoc-btn" data-mode="kairos-assoc" data-name="Kairos" data-fn="Réseau de direction externalisée" onclick="setVoice(this)">
+          Kairos →<br>Associés
+          <span class="assoc-fn">Recruter des directeurs</span>
+        </button>
+      </div>
+
+      <!-- Champs saisie libre associé (visibles uniquement en mode "associe") -->
+      <div class="identity-custom" id="customIdentityBlock">
+        <div class="identity-custom-lbl">✎ Votre identité</div>
+        <div class="id-row">
+          <input class="id-input" id="customName" placeholder="Prénom Nom" oninput="onCustomIdentity()"/>
+          <input class="id-input" id="customFn" placeholder="Fonction (ex: DAF)" oninput="onCustomIdentity()"/>
+        </div>
+      </div>
+
+      <div id="fbBadge" class="fb-badge" onclick="showFeedbackModal()">✦ Aucun feedback enregistré</div>
+    </div>
+
+    <!-- Onglets fonctions -->
+    <div class="fn-tabs" id="fnTabs">
+      <button class="fn-tab active" data-fn="RH" onclick="switchFn('RH',this)">RH</button>
+      <button class="fn-tab" data-fn="DAF" onclick="switchFn('DAF',this)">DAF</button>
+      <button class="fn-tab" data-fn="DG" onclick="switchFn('DG',this)">DG</button>
+      <button class="fn-tab" data-fn="Achats" onclick="switchFn('Achats',this)">Achats</button>
+      <button class="fn-tab" data-fn="IT" onclick="switchFn('IT',this)">IT / DSI</button>
+      <button class="fn-tab" data-fn="DC" onclick="switchFn('DC',this)">Commercial</button>
+      <button class="fn-tab" data-fn="KAIROS" onclick="switchFn('KAIROS',this)" style="color:var(--or);font-weight:700">Kairos ★</button>
+    </div>
+
+    <!-- Tab thèmes -->
+    <div class="themes-scroll" id="sbThemes"></div>
+
+    <!-- Tab thème libre -->
+    <div class="free-tab-content" id="sbLibre" style="display:none">
+      <div class="ctrl-lbl" style="margin-bottom:4px">Décrivez votre sujet</div>
+      <textarea class="free-textarea" id="freeInput" rows="3" placeholder="Ex: passation de pouvoir, recrutement raté, coûts cachés, crise de trésorerie…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();generateFree();}"></textarea>
+      <select class="free-select" id="freeRegistre">
+        <option value="auto">Registre automatique</option>
+        <option value="douleur">🔴 Douleur nommée</option>
+        <option value="expertise">🔵 Partage d'expertise</option>
+        <option value="question">🟢 Question dirigeant</option>
+        <option value="obligation">🟡 Enjeu légal / obligation</option>
+      </select>
+      <button class="free-gen-btn" id="freeGenBtn" onclick="generateFree()">▶ Générer 3 scripts</button>
+      <div style="height:1px;background:rgba(0,0,0,0.04);margin:10px 0;"></div>
+      <div class="saved-lbl">Thèmes libres générés</div>
+      <div id="savedList"></div>
+    </div>
+
+    <!-- Tab historique -->
+    <div class="hist-tab-content" id="sbHist" style="display:none">
+      <input class="hist-search" id="histSearch" placeholder="Rechercher…" oninput="renderHistory()"/>
+      <select class="free-select" id="histFilterAssoc" onchange="renderHistory()" style="margin-top:4px;margin-bottom:8px;">
+        <option value="all">Tous les associés</option>
+      </select>
+      <div style="height:1px;background:rgba(0,0,0,0.04);margin-bottom:8px;"></div>
+      <div id="histList"><div style="font-size:.66rem;color:var(--muted);padding:4px">Aucun historique.</div></div>
+    </div>
+
+    <!-- Tab validés -->
+    <div class="val-tab-content" id="sbVal" style="display:none">
+      <div class="ctrl-lbl" style="margin-bottom:6px">Posts publiés · Suivi performance</div>
+      <div id="valList"><div style="font-size:.66rem;color:var(--muted);padding:4px">Aucun post validé.</div></div>
+    </div>
+
+    <!-- Tab veille juridique -->
+    <div class="val-tab-content" id="sbVeille" style="display:none">
+      <div style="padding:2px 2px 8px">
+        <div style="font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--or);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:4px">⚖ Veille juridique & réglementaire</div>
+        <div style="font-size:.63rem;color:var(--muted);line-height:1.6;margin-bottom:8px">Mise à jour des obligations légales et enjeux réglementaires par fonction. L'agent effectue une recherche web et met à jour les contextes affichés dans les thèmes.</div>
+        <div id="veilleLastUpdate" style="font-size:.57rem;color:var(--muted2);margin-bottom:8px;font-style:italic">Dernière mise à jour : jamais</div>
+
+        <!-- Bouton global -->
+        <button onclick="runVeilleAll()" id="veilleAllBtn" style="width:100%;background:var(--or);border:none;border-radius:4px;padding:8px;color:#fff;font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.05em;cursor:pointer;margin-bottom:8px;transition:opacity .14s">
+          ↻ Mettre à jour toutes les fonctions
+        </button>
+
+        <!-- Boutons par fonction -->
+        <div style="font-size:.52rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted2);margin-bottom:5px">Ou par fonction</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:10px">
+          <button onclick="runVeille('RH')" class="veille-fn-btn">RH</button>
+          <button onclick="runVeille('DAF')" class="veille-fn-btn">DAF</button>
+          <button onclick="runVeille('DG')" class="veille-fn-btn">DG</button>
+          <button onclick="runVeille('Achats')" class="veille-fn-btn">Achats</button>
+          <button onclick="runVeille('IT')" class="veille-fn-btn">IT / DSI</button>
+          <button onclick="runVeille('DC')" class="veille-fn-btn">Commercial</button>
+        </div>
+
+        <!-- Journal des mises à jour -->
+        <div style="font-size:.52rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted2);margin-bottom:5px">Résultats</div>
+        <div id="veilleLog" style="font-size:.63rem;color:var(--muted);line-height:1.6">
+          <div style="color:var(--muted2);font-style:italic">Aucune mise à jour effectuée.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <div class="welcome" id="welcome">
+  <div class="wlc-glyph" style="font-size:2.8rem;letter-spacing:.12em;">KAIROS</div>
+      <div class="wlc-title">Agent Contenu LinkedIn</div>
+      <div class="wlc-sub">Choisissez l'<strong>associé·e</strong>, la <strong>fonction</strong>, puis un thème — ou saisissez le vôtre. L'agent génère <strong>3 scripts complémentaires</strong> personnalisés pour vos prospects dirigeants PME/TPE.</div>
+      <div class="wlc-grid">
+        <div class="wlc-card"><div class="wlc-card-lbl">6 fonctions</div><div class="wlc-card-txt">RH · DAF · DG · Achats · IT/DSI · Commercial</div></div>
+        <div class="wlc-card"><div class="wlc-card-lbl">4 registres</div><div class="wlc-card-txt">Douleur · Expertise · Question · Obligation légale</div></div>
+        <div class="wlc-card"><div class="wlc-card-lbl">3 scripts</div><div class="wlc-card-txt">PAS · AIDA/BAB · 4P/Storytelling + visuel Canva</div></div>
+      </div>
+    </div>
+
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <div class="loader-txt" id="loaderTxt">Génération en cours…</div>
+    </div>
+
+    <div class="scripts-panel" id="scriptsPanel">
+      <div class="sp-header">
+        <div>
+          <div class="sp-title" id="panelTitle">—</div>
+          <div class="sp-meta">3 scripts complémentaires · angles différents · suggestion visuelle</div>
+        </div>
+        <button class="regen-btn" onclick="regen()">↺ Regénérer</button>
+      </div>
+      <div class="script-tabs" id="scriptTabs"></div>
+      <div class="script-content" id="scriptContent"></div>
+    </div>
+
+    <div class="chat-footer" id="footer">
+      <select class="rf-select" id="rfTarget"><option value="all">Tous</option></select>
+      <input class="rf-input" id="rfInput" placeholder="Changer le hook, raccourcir, ton plus direct, autre question DM…" onkeydown="if(event.key==='Enter')refine()"/>
+      <button class="rf-btn" onclick="refine()">Affiner ↵</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// DONNÉES THÈMES PAR FONCTION
+// ════════════════════════════════════════════
+const THEMES = {
+  RH: {
+    enjeux: [
+      "EPP (ex-entretien pro) — Loi 2025-989 : cycle 4 ans/8 ans, 5 thématiques obligatoires, mise en conformité avant le 1er oct. 2026",
+      "Entretien mi-carrière obligatoire à 45 ans — nouveau depuis oct. 2025, sanction prud'homale si absent",
+      "Abondement CPF correctif 3 000€/salarié — entreprises ≥50 sal. non conformes à l'EPP exposées",
+      "Transparence salariale (directive UE 2023/970) — transposition France attendue 2027, anticipation grille salariale dès maintenant",
+      "Index égalité F/H — publication obligatoire avant le 1er mars 2026 selon modalités actuelles (dernière édition avant réforme)",
+      "Loi Rixain — 30% de femmes parmi cadres dirigeants et membres des instances dirigeantes dès 2026"
+    ],
+    themes: [
+      {r:'d', l:'Turnover silencieux', h:'Les meilleurs partent avant de démissionner'},
+      {r:'d', l:'Recrutement raté', h:'Le coût qu\'on ne calcule jamais'},
+      {r:'d', l:'Manager débordé', h:'Porteur du changement qu\'il subit encore'},
+      {r:'d', l:'Absence de politique RH', h:'Tout repose sur l\'intuition du dirigeant'},
+      {r:'d', l:'Désengagement silencieux', h:'6 à 12 mois avant la démission'},
+      {r:'d', l:'Conflits non adressés', h:'Ce qui couve sous la surface'},
+      {r:'e', l:'Onboarding structuré', h:'Ce que fait un DRH Kairos dans les 30 premiers jours'},
+      {r:'e', l:'Réforme EPP 2026 : ce qui change', h:'Cycle 4/8 ans, 5 thématiques, entretien mi-carrière — mise en conformité avant oct. 2026'},
+      {r:'e', l:'Entretien de parcours professionnel', h:'Ex-entretien pro : nouveau contenu, nouveau rythme, nouvelles sanctions'},
+      {r:'e', l:'Entretien annuel repensé', h:'Pourquoi le format classique ne fonctionne plus'},
+      {r:'e', l:'Transparence salariale — directive UE', h:'Transposition France attendue 2027 — anticiper grille, critères, affichage dès le recrutement'},
+      {r:'o', l:'EPP obligatoire — mise en conformité oct. 2026', h:'Loi 2025-989 : nouveau cycle, 5 thématiques, entretien 45 ans — toutes tailles concernées'},
+      {r:'o', l:'Abondement CPF 3 000€', h:'Sanction automatique pour les ≥50 sal. non conformes à l\'EPP au 1er oct. 2026'},
+      {r:'e', l:'Politique de rémunération PME', h:'Construire de la cohérence sans budget dédié'},
+      {r:'e', l:'Recrutement structuré', h:'Pourquoi recruter vite coûte cher'},
+      {r:'e', l:'Intégration post-recrutement', h:'Le recrutement ne s\'arrête pas à la signature'},
+      {r:'e', l:'Gérer la performance', h:'Objectifs, feedback, recadrage — sans attendre l\'annuel'},
+      {r:'e', l:'Gestion des sous-performeurs', h:'Ce qu\'on reporte jusqu\'à ce que ça explose'},
+      {r:'e', l:'Politique de formation & OPCO', h:'CPF, plan de dev — par où commencer'},
+      {r:'e', l:'Fiche de poste & cadre de référence', h:'La base qu\'on néglige et qui génère les conflits'},
+      {r:'e', l:'Droit du travail en PME', h:'Les 5 erreurs les plus fréquentes'},
+      {r:'e', l:'Relations CSE & dialogue social', h:'Transformer une obligation en levier de confiance'},
+      {r:'e', l:'QVCT & bien-être', h:'Au-delà du babyfoot — ce qui change vraiment'},
+      {r:'e', l:'EQi 2.0 & management', h:'Mesurer pour développer, pas pour juger'},
+      {r:'e', l:'Manager 5.0 & IA', h:'Nouveaux repères pour équipes hybrides'},
+      {r:'e', l:'DRH temps partagé en action', h:'Concrètement, à quoi ça ressemble ?'},
+      {r:'q', l:'Qui gère vos RH aujourd\'hui ?', h:'Interpelle le dirigeant seul sur tous les fronts'},
+      {r:'q', l:'Votre turnover vous coûte combien ?', h:'Incite à calculer ce qu\'on évite de regarder'},
+      {r:'q', l:'Vos managers ont-ils été préparés ?', h:'Responsabilisation sans culpabilisation'},
+      {r:'o', l:'Index égalité F/H', h:'Obligatoire dès 50 salariés — êtes-vous à jour ?'},
+      {r:'o', l:'Entretiens pro obligatoires', h:'Tous les 2 ans — et abondement CPF si non respecté'},
+      {r:'o', l:'Transparence salariale 2026', h:'Ce que la directive européenne va imposer concrètement'},
+    ]
+  },
+  DAF: {
+    enjeux: [
+      "Facture électronique obligatoire : déploiement progressif 2024-2026",
+      "CSRD (reporting durabilité) : applicable aux PME de plus de 250 salariés dès 2025",
+      "Délais de paiement : LME impose 60 jours max, sanctions alourdies",
+      "Loi PACTE : obligation de compte courant séparé pour auto-entrepreneurs"
+    ],
+    themes: [
+      {r:'d', l:'Chiffres sans lecture', h:'Des tableaux de bord qu\'on ne sait pas utiliser'},
+      {r:'d', l:'Trésorerie non anticipée', h:'Le mauvais mois qui surprend'},
+      {r:'d', l:'Expert-comptable ≠ DAF', h:'La confusion qui coûte des décisions'},
+      {r:'d', l:'Financement croissance', h:'Grandir sans savoir comment se financer'},
+      {r:'d', l:'Pilotage à l\'intuition', h:'Quand l\'expérience remplace les KPIs'},
+      {r:'d', l:'Contrôle de gestion absent', h:'On sait ce qu\'on a fait, pas ce qu\'on va faire'},
+      {r:'e', l:'Business plan PME', h:'Ce qu\'il doit vraiment contenir — et pas contenir'},
+      {r:'e', l:'Budget vs réel', h:'Lire un écart et en tirer une décision'},
+      {r:'e', l:'Prévisionnel de trésorerie', h:'L\'outil le plus sous-utilisé des PME'},
+      {r:'e', l:'Tableau de bord dirigeant', h:'5 indicateurs suffisent — lesquels ?'},
+      {r:'e', l:'Financement BPI & aides publiques', h:'Ce que les PME ne savent pas qu\'elles peuvent obtenir'},
+      {r:'e', l:'Contrôle de gestion simplifié', h:'Mettre en place un suivi sans recruter un contrôleur'},
+      {r:'e', l:'Optimisation du BFR', h:'Libérer du cash sans investissement'},
+      {r:'e', l:'Fiscalité PME : les leviers', h:'Ce qu\'un dirigeant devrait savoir'},
+      {r:'e', l:'Relation banque & financement', h:'Comment préparer un dossier qui convainc'},
+      {r:'e', l:'DAF externalisé Kairos', h:'Ce que vous gagnez vs un recrutement CDI'},
+      {r:'q', l:'Prenez-vous vos décisions avec vos chiffres ?', h:'Crée un inconfort productif et immédiat'},
+      {r:'q', l:'Que se passe-t-il si votre comptable part ?', h:'Révèle la dépendance souvent invisible'},
+      {r:'q', l:'Avez-vous un cap financier à 3 ans ?', h:'Question stratégique déclencheuse'},
+      {r:'o', l:'Facture électronique obligatoire', h:'Calendrier de déploiement et impacts concrets'},
+      {r:'o', l:'Délais de paiement LME', h:'60 jours max — les sanctions alourdies depuis 2023'},
+      {r:'o', l:'CSRD & reporting durabilité', h:'Ce que les PME fournisseurs de grands groupes doivent anticiper'},
+    ]
+  },
+  DG: {
+    enjeux: [
+      "Loi PACTE : obligation d'objet social élargi (raison d'être possible)",
+      "Loi Rixain (2026) : 30% de femmes parmi les cadres dirigeants",
+      "Devoir de vigilance : applicable aux entreprises >5000 salariés mais pression sur sous-traitants",
+      "Index cybersécurité NIS2 : nouvelles obligations pour les ETI et PME critiques"
+    ],
+    themes: [
+      {r:'d', l:'Solitude décisionnelle', h:'Diriger sans jamais soumettre ses décisions'},
+      {r:'d', l:'Trop de chapeaux', h:'DG, DAF, DRH, Commercial… à la fois'},
+      {r:'d', l:'Croissance non structurée', h:'Quand le succès devient un problème'},
+      {r:'d', l:'Succession & transmission', h:'Ce qu\'on reporte jusqu\'à ce que ce soit urgent'},
+      {r:'d', l:'Vision sans exécution', h:'L\'écart entre la stratégie et le terrain'},
+      {r:'d', l:'Dépendance au dirigeant', h:'L\'entreprise qui ne tourne que si vous êtes là'},
+      {r:'e', l:'DG miroir Kairos', h:'Le concept expliqué sans jargon'},
+      {r:'e', l:'Structurer sa gouvernance PME', h:'Instances, reporting, délégation — par où commencer'},
+      {r:'e', l:'Délégation effective', h:'Pourquoi déléguer sans cadre ne fonctionne pas'},
+      {r:'e', l:'Décision stratégique en PME', h:'Comment la prendre mieux et plus vite'},
+      {r:'e', l:'Plan stratégique à 3 ans', h:'Ce qu\'il doit contenir pour une PME en croissance'},
+      {r:'e', l:'Préparer sa transmission', h:'Les étapes que 80% des dirigeants négligent'},
+      {r:'e', l:'Management de CODIR PME', h:'Faire fonctionner une instance quand on est PME'},
+      {r:'e', l:'Conduite du changement PME', h:'Embarquer ses équipes sans les brusquer'},
+      {r:'e', l:'Kairos : business partners impliqués', h:'La différence avec un consultant'},
+      {r:'q', l:'À qui soumettez-vous vos décisions ?', h:'La question qui fait tilt chez tout dirigeant'},
+      {r:'q', l:'Qui vous dit vraiment la vérité ?', h:'L\'entourage professionnel honnête est rare'},
+      {r:'q', l:'Votre entreprise tourne-t-elle sans vous ?', h:'Test de dépendance dirigeant'},
+      {r:'o', l:'Loi Rixain 2026', h:'30% de femmes cadres dirigeantes — êtes-vous prêt ?'},
+      {r:'o', l:'Raison d\'être & objet social', h:'Loi PACTE : ce que ça change concrètement'},
+      {r:'o', l:'NIS2 & cybersécurité', h:'Nouvelles obligations pour les PME à partir de 2024'},
+    ]
+  },
+  Achats: {
+    enjeux: [
+      "Loi Sapin 2 : devoir de vigilance sur la chaîne d'approvisionnement",
+      "Loi AGEC : obligations recyclage et écoconception — impact achats",
+      "DORA (finance) & NIS2 : due diligence fournisseurs IT obligatoire",
+      "RSE & reporting extra-financier : traçabilité fournisseurs exigée par grands donneurs d'ordre"
+    ],
+    themes: [
+      {r:'d', l:'Achats gérés par défaut', h:'Personne ne s\'en occupe vraiment — tout le monde un peu'},
+      {r:'d', l:'Fournisseurs stratégiques non sécurisés', h:'Le risque qu\'on découvre au pire moment'},
+      {r:'d', l:'Coûts d\'achat non pilotés', h:'Ce qui s\'échappe sans qu\'on le voie'},
+      {r:'d', l:'Supply chain fragile', h:'Dépendance à un seul fournisseur'},
+      {r:'d', l:'Marge grignotée sans raison visible', h:'Quand les achats sont le problème caché'},
+      {r:'e', l:'Cartographie fournisseurs PME', h:'Par où commencer pour avoir une vision claire'},
+      {r:'e', l:'Segmentation portefeuille achats', h:'Tout n\'est pas stratégique — savoir trier'},
+      {r:'e', l:'Négociation achat : les leviers', h:'Ce qu\'une PME peut obtenir si elle sait demander'},
+      {r:'e', l:'Contrats fournisseurs : clauses clés', h:'Ce qu\'on oublie de lire avant de signer'},
+      {r:'e', l:'RSE & achats responsables', h:'Contrainte ou levier de différenciation ?'},
+      {r:'e', l:'Supply chain & résilience', h:'Réduire sa dépendance structurellement'},
+      {r:'e', l:'Indicateurs de performance achats', h:'Ce qu\'on devrait mesurer — et ne mesure pas'},
+      {r:'e', l:'Dir. Achats externalisé Kairos', h:'Résultats mesurables en 3 mois'},
+      {r:'q', l:'Savez-vous ce que vous payez vraiment ?', h:'Question déconcertante — souvent sans réponse précise'},
+      {r:'q', l:'Vos achats sont-ils un levier ou un coût ?', h:'Repositionne la perception de la fonction'},
+      {r:'q', l:'Qui négocie pour vous aujourd\'hui ?', h:'Met en lumière l\'absence de compétence dédiée'},
+      {r:'o', l:'Devoir de vigilance fournisseurs', h:'Loi Sapin 2 — ce que ça implique pour votre chaîne'},
+      {r:'o', l:'AGEC & écoconception', h:'Obligations recyclage qui impactent vos achats dès maintenant'},
+      {r:'o', l:'Due diligence RSE fournisseurs', h:'Ce que vos grands comptes vont vous demander'},
+    ]
+  },
+  IT: {
+    enjeux: [
+      "NIS2 (2024) : nouvelles obligations cybersécurité pour les PME dans secteurs critiques",
+      "RGPD : sanctions alourdies, accountability renforcée, DPO recommandé dès 250 personnes",
+      "IA Act européen (2026) : obligations de transparence sur les systèmes IA utilisés",
+      "Facture électronique : migration SI obligatoire pour toutes les entreprises avant 2026"
+    ],
+    themes: [
+      {r:'d', l:'SI non aligné sur la stratégie', h:'Des outils qui n\'évoluent pas avec l\'entreprise'},
+      {r:'d', l:'Cybersécurité : la PME croit être protégée', h:'L\'angle mort le plus fréquent — et le plus coûteux'},
+      {r:'d', l:'Dépendance à un prestataire IT', h:'Quand changer devient techniquement impossible'},
+      {r:'d', l:'Transformation digitale floue', h:'Le grand projet qui dure depuis 2 ans'},
+      {r:'d', l:'Données non exploitées', h:'L\'or qu\'on a mais qu\'on ne sait pas raffiner'},
+      {r:'d', l:'Outils sans cohérence', h:'Un outil par problème — personne ne pilote l\'ensemble'},
+      {r:'e', l:'DSI temps partagé : quand en avoir besoin ?', h:'Les signaux déclencheurs pour une PME'},
+      {r:'e', l:'IA en PME : par où commencer', h:'Sans projet pharaonique ni budget disproportionné'},
+      {r:'e', l:'Schéma directeur SI simplifié', h:'Ce qu\'il doit vraiment contenir pour une PME'},
+      {r:'e', l:'Audit IT express', h:'Ce que fait un DSI Kairos dans les 30 premiers jours'},
+      {r:'e', l:'ERP PME : éviter les pièges', h:'Sélection, implémentation, adoption — les 3 étapes'},
+      {r:'e', l:'Cybersécurité PME : les bases', h:'Ce qu\'on peut mettre en place sans budget dédié'},
+      {r:'e', l:'Cloud vs on-premise PME', h:'Comment choisir sans se faire vendre ce dont on n\'a pas besoin'},
+      {r:'e', l:'Automatisation & productivité', h:'3 processus qu\'une PME peut automatiser rapidement'},
+      {r:'q', l:'Votre SI vous sert-il ou vous contraint-il ?', h:'Prise de conscience rapide et souvent douloureuse'},
+      {r:'q', l:'Que se passe-t-il si votre prestataire IT disparaît ?', h:'Révèle la fragilité souvent niée'},
+      {r:'q', l:'L\'IA va-t-elle changer votre métier ?', h:'Question clivante qui génère de l\'engagement'},
+      {r:'o', l:'NIS2 : nouvelles obligations cyber', h:'Ce que la directive impose aux PME dès 2024'},
+      {r:'o', l:'RGPD & accountability', h:'DPO, registre de traitements — où en êtes-vous ?'},
+      {r:'o', l:'IA Act européen', h:'Obligations de transparence sur vos outils IA dès 2026'},
+    ]
+  },
+  DC: {
+    enjeux: [
+      "Loi Sapin 2 : anti-corruption dans les pratiques commerciales",
+      "RGPD & prospection B2B : règles de consentement et opt-out obligatoires",
+      "Délais de paiement LME : obligation contractuelle et pénalités de retard",
+      "Loi Hamon : droit de rétractation étendu, impacts sur CGV"
+    ],
+    themes: [
+      {r:'d', l:'Commercial dépendant du dirigeant', h:'Les ventes s\'arrêtent si vous arrêtez de prospecter'},
+      {r:'d', l:'Pipeline invisible', h:'On ne sait pas ce qui arrive dans 3 mois'},
+      {r:'d', l:'Équipe commerciale sans cap', h:'Des commerciaux qui s\'autogèrent dans tous les sens'},
+      {r:'d', l:'Prospection inexistante', h:'On attend le bouche-à-oreille'},
+      {r:'d', l:'Perte d\'un client stratégique', h:'Ce qui révèle la concentration du risque'},
+      {r:'d', l:'Offre mal positionnée', h:'On perd des deals sans comprendre pourquoi'},
+      {r:'e', l:'Stratégie commerciale PME', h:'Un plan qui tient sur une page et se traduit en actes'},
+      {r:'e', l:'Pitch & discours de vente', h:'Ce que vos commerciaux doivent savoir dire'},
+      {r:'e', l:'CRM PME : choisir et adopter', h:'Sans surcharger les équipes'},
+      {r:'e', l:'Cycle de vente court vs long', h:'Les deux ne se pilotent pas de la même façon'},
+      {r:'e', l:'Prospection LinkedIn en PME', h:'Ce qui fonctionne vraiment vs ce qu\'on croit'},
+      {r:'e', l:'Gestion des grands comptes', h:'Comment structurer une relation client stratégique'},
+      {r:'e', l:'Pricing & politique tarifaire', h:'Pourquoi la plupart des PME se sous-vendent'},
+      {r:'e', l:'Recrutement commercial', h:'Ce qu\'on ne voit pas dans un CV de commercial'},
+      {r:'e', l:'Animation d\'équipe commerciale', h:'Réunions, challenges, suivi — maintenir la dynamique'},
+      {r:'e', l:'Dir. Commercial externalisé Kairos', h:'Ce qu\'on obtient concrètement en 6 mois'},
+      {r:'q', l:'Vos commerciaux savent-ils quoi dire ?', h:'Met le doigt sur l\'absence de discours structuré'},
+      {r:'q', l:'Si vous arrêtez de prospecter, que se passe-t-il ?', h:'Révèle la dépendance totale au dirigeant'},
+      {r:'q', l:'Votre meilleur commercial, c\'est vous ?', h:'Reconnaissance immédiate chez le dirigeant-vendeur'},
+      {r:'o', l:'RGPD & prospection B2B', h:'Règles de consentement — êtes-vous en conformité ?'},
+      {r:'o', l:'Délais de paiement : vos CGV', h:'Clauses obligatoires et pénalités de retard'},
+      {r:'o', l:'Loi Sapin 2 & anti-corruption', h:'Ce que ça implique dans vos pratiques commerciales'},
+    ]
+  },
+  // Thèmes Kairos selon la voix — filtrés dynamiquement dans renderThemes()
+  'KAIROS-dirigeant': {
+    enjeux: [
+      "Modèle alternatif au CDI cadre dirigeant : flexibilité, coût maîtrisé, implication totale",
+      "Cible : PME/TPE 10-250 salariés, souvent sans direction fonctionnelle dédiée",
+      "ROI mesurable : décisions prises, recrutements réussis, marchés structurés",
+      "Réseau national Kairos : 70 villes, toutes fonctions de direction couvertes"
+    ],
+    themes: [
+      {r:'d', l:'Diriger seul tous les fronts', h:'DG, DAF, DRH et commercial à la fois — le quotidien de la plupart des dirigeants PME'},
+      {r:'d', l:'Recruter un cadre dirigeant : trop risqué', h:'80-130K€/an en CDI pour un besoin peut-être à mi-temps'},
+      {r:'d', l:'Décisions sans regard extérieur', h:'Aucun œil qualifié pour challenger la stratégie ou dire non'},
+      {r:'d', l:'Croissance sans structure', h:'Le moment où le génie du fondateur ne suffit plus à tout faire avancer'},
+      {r:'d', l:'Le consultant qui passe et repart', h:'Un rapport, des recommandations — et personne pour les mettre en œuvre'},
+      {r:'d', l:'Dépendance totale au dirigeant', h:'L\'entreprise qui s\'arrête quand il s\'arrête'},
+      {r:'e', l:'Direction à temps partagé : le modèle', h:'Ni consultant, ni salarié — ce que ça veut dire concrètement'},
+      {r:'e', l:'Un directeur Kairos en 30 jours', h:'Ce qui se passe dans le premier mois d\'une mission'},
+      {r:'e', l:'ROI d\'un directeur externalisé', h:'Comment mesurer ce que ça rapporte réellement à une PME'},
+      {r:'e', l:'Kairos vs recrutement CDI', h:'Comparaison directe — coût, risque, délai, flexibilité'},
+      {r:'e', l:'Kairos vs cabinet de conseil', h:'L\'implication en plus, la facture en moins, la continuité en prime'},
+      {r:'e', l:'Ce qu\'un directeur Kairos n\'est pas', h:'Déconstruire les idées reçues sur le temps partagé'},
+      {r:'q', l:'Avez-vous un directeur ou un pompier ?', h:'La différence entre piloter et éteindre des feux en permanence'},
+      {r:'q', l:'Combien coûte votre absence de DAF ?', h:'Chiffrer l\'invisible pour déclencher la prise de conscience'},
+      {r:'q', l:'Que se passe-t-il si vous disparaissez 3 mois ?', h:'Test de résilience immédiat et souvent inconfortable'},
+      {r:'q', l:'Votre prochain recrutement cadre — êtes-vous sûr ?', h:'Interpelle sur le risque d\'un CDI raté'},
+    ]
+  },
+  'KAIROS-assoc': {
+    enjeux: [
+      "Cible : directeurs/directrices expérimenté·e·s, 15+ ans en direction salariée",
+      "Profils : DAF, DRH, Dir. Commercial, DSI, Dir. Achats, DGA en transition ou questionnement",
+      "Ce qu'ils cherchent : impact, liberté, revenu maintenu, appartenance à un collectif",
+      "Ce qu'ils craignent : isolement du freelance, perte de statut, incertitude commerciale"
+    ],
+    themes: [
+      {r:'d', l:'L\'usure du salariat dirigeant', h:'Quand l\'expertise est là mais la liberté manque'},
+      {r:'d', l:'Partir seul : l\'angoisse du freelance', h:'L\'indépendance attire — l\'isolement freine'},
+      {r:'d', l:'La retraite anticipée qui n\'est pas une retraite', h:'Trop tôt pour s\'arrêter, trop tard pour repartir comme avant'},
+      {r:'d', l:'20 ans d\'expertise — pour une seule entreprise', h:'La frustration de ne pas pouvoir démultiplier son impact'},
+      {r:'d', l:'Le poste de direction qui n\'existe plus', h:'Restructuration, fusion, départ contraint — et après ?'},
+      {r:'e', l:'Devenir associé Kairos : le modèle', h:'Ce que ça change concrètement dans le quotidien d\'un directeur'},
+      {r:'e', l:'3 à 5 missions simultanées : comment ça fonctionne', h:'Organisation, charge, variété — ce que vivent les associés'},
+      {r:'e', l:'Kairos : un réseau, pas un employeur', h:'La solidarité d\'un collectif avec la liberté de l\'indépendant'},
+      {r:'e', l:'Le revenu d\'un associé Kairos', h:'Ce qu\'on peut raisonnablement attendre la première année'},
+      {r:'e', l:'Rejoindre Kairos : le processus', h:'De la première conversation à la première mission — les étapes'},
+      {r:'e', l:'Ce que Kairos apporte que le freelance n\'a pas', h:'Marque, réseau, appui commercial, collectif'},
+      {r:'q', l:'Et si votre expertise servait 5 dirigeants à la fois ?', h:'Invitation à repenser l\'impact de 20 ans d\'expérience'},
+      {r:'q', l:'Directeur salarié ou directeur associé ?', h:'La question que beaucoup se posent sans oser la formuler'},
+      {r:'q', l:'Après votre dernière direction salariée, quelle suite ?', h:'Post doux pour profils en transition ou questionnement'},
+      {r:'q', l:'Qu\'est-ce que vous feriez si vous n\'aviez pas peur ?', h:'Question ouverte, clivante, qui crée de la reconnaissance'},
+    ]
+  }
+};
+
+const REG_LABELS = {d:'Douleurs',e:'Expertise',q:'Questions dirigeant',o:'Enjeux & obligations'};
+const REG_COLORS = {d:'var(--col-d)',e:'var(--col-e)',q:'var(--col-q)',o:'var(--col-o)'};
+const REG_ORDER = ['d','e','q','o'];
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let currentFn = 'RH';
+let currentCtx = null;
+let scripts = [];
+let history = [];
+let validatedPosts = [];
+let savedThemes = [];
+let feedbacks = {};
+let API_KEY = '';
+let customName = '';
+let customFnVal = '';
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+API_KEY = localStorage.getItem('kairos_api_key') || '';
+
+window.addEventListener('load', () => {
+  initApiKeyUI();
+  const h = localStorage.getItem('kairos_history');
+  if (h) { try { history = JSON.parse(h); } catch(e){} }
+  const val = localStorage.getItem('kairos_validated');
+  if (val) { try { validatedPosts = JSON.parse(val); } catch(e){} }
+  const saved = localStorage.getItem('kairos_saved_themes');
+  if (saved) { try { savedThemes = JSON.parse(saved); renderSaved(); } catch(e){} }
+  const fb = localStorage.getItem('kairos_feedbacks');
+  if (fb) { try { feedbacks = JSON.parse(fb); } catch(e){} }
+  renderThemes('RH');
+  updateFbBadge();
+  buildAssocFilter();
+});
+
+function initApiKeyUI() {
+  const f = document.getElementById('apiKeyField');
+  const btn = document.getElementById('apiKeyBtn');
+  if (!f || !btn) return;
+  if (API_KEY) {
+    f.value = API_KEY; f.placeholder = '✓ Clé enregistrée';
+    f.style.borderColor = 'var(--vert)';
+    btn.textContent = '✎'; btn.style.background = '#555';
+    btn.onclick = resetApiKey;
+  } else {
+    f.value = ''; f.placeholder = 'sk-ant-…';
+    f.style.borderColor = '';
+    btn.textContent = '✓'; btn.style.background = 'var(--or)';
+    btn.onclick = saveApiKey;
+  }
+}
+
+function saveApiKey() {
+  const f = document.getElementById('apiKeyField');
+  const k = f.value.trim();
+  if (!k || !k.startsWith('sk-ant-')) {
+    f.style.borderColor = 'var(--rouge)'; f.value = ''; f.placeholder = 'Clé invalide — doit commencer par sk-ant-';
+    setTimeout(() => { f.style.borderColor = ''; f.placeholder = 'sk-ant-…'; }, 3000);
+    return;
+  }
+  API_KEY = k; localStorage.setItem('kairos_api_key', k);
+  initApiKeyUI();
+}
+
+function resetApiKey() {
+  API_KEY = ''; localStorage.removeItem('kairos_api_key');
+  initApiKeyUI();
+  document.getElementById('apiKeyField').focus();
+}
+
+// ════════════════════════════════════════════
+// VOIX / MODE
+// ════════════════════════════════════════════
+let currentMode = 'associe'; // 'associe' | 'kairos-dirigeant' | 'kairos-assoc'
+
+function setVoice(btn) {
+  document.querySelectorAll('.assoc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentMode = btn.dataset.mode;
+  // Afficher/cacher les champs saisie libre
+  const block = document.getElementById('customIdentityBlock');
+  if (block) block.style.display = currentMode === 'associe' ? '' : 'none';
+  // Auto-switch fn tab vers KAIROS si mode comm
+  if (currentMode !== 'associe') {
+    const kTab = document.querySelector('.fn-tab[data-fn="KAIROS"]');
+    if (kTab) switchFn('KAIROS', kTab);
+  }
+  updateFbBadge();
+}
+
+function setAssoc(btn) { setVoice(btn); } // compat
+
+function onCustomIdentity() {
+  customName = document.getElementById('customName').value.trim();
+  customFnVal = document.getElementById('customFn').value.trim();
+}
+
+function getAssocName() {
+  if (currentMode === 'kairos-dirigeant' || currentMode === 'kairos-assoc') return 'Kairos';
+  if (customName) return customName;
+  return 'un associé Kairos';
+}
+
+function getAssocFn() {
+  if (currentMode === 'kairos-dirigeant') return 'Réseau de direction externalisée — voix institutionnelle (cible : dirigeants PME)';
+  if (currentMode === 'kairos-assoc') return 'Réseau de direction externalisée — voix institutionnelle (cible : futurs associés directeurs)';
+  if (customFnVal) return customFnVal;
+  return 'Directeur·rice externalisé·e';
+}
+
+// ════════════════════════════════════════════
+// TABS SIDEBAR
+// ════════════════════════════════════════════
+function switchSbTab(t) {
+  document.querySelectorAll('.sb-tab').forEach((b,i) => b.classList.toggle('active', ['themes','libre','hist','val','veille'][i] === t));
+  document.getElementById('sbThemes').style.display = t==='themes' ? '' : 'none';
+  document.getElementById('fnTabs').style.display = t==='themes' ? '' : 'none';
+  document.getElementById('sbLibre').style.display = t==='libre' ? '' : 'none';
+  document.getElementById('sbHist').style.display = t==='hist' ? '' : 'none';
+  document.getElementById('sbVal').style.display = t==='val' ? '' : 'none';
+  document.getElementById('sbVeille').style.display = t==='veille' ? '' : 'none';
+  if (t==='hist') renderHistory();
+  if (t==='val') renderValidated();
+  if (t==='veille') renderVeilleLog();
+}
+
+// ════════════════════════════════════════════
+// FONCTIONS & THÈMES
+// ════════════════════════════════════════════
+function switchFn(fn, btn) {
+  currentFn = fn;
+  document.querySelectorAll('.fn-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderThemes(fn);
+}
+
+function getKairosDataKey() {
+  if (currentMode === 'kairos-assoc') return 'KAIROS-assoc';
+  return 'KAIROS-dirigeant'; // défaut pour kairos-dirigeant et associé qui clique sur l'onglet Kairos
+}
+
+function renderThemes(fn) {
+  // Pour l'onglet KAIROS, on charge le bon bloc selon la voix active
+  const dataKey = fn === 'KAIROS' ? getKairosDataKey() : fn;
+  const data = THEMES[dataKey];
+  if (!data) return;
+  const byReg = {d:[],e:[],q:[],o:[]};
+  data.themes.forEach((t,i) => byReg[t.r].push({...t,idx:i}));
+
+  let html = '';
+
+  // Label cible pour l'onglet Kairos
+  if (fn === 'KAIROS') {
+    const cibleLabel = currentMode === 'kairos-assoc'
+      ? '🎯 Thèmes pour attirer des directeurs associés'
+      : '🎯 Thèmes pour attirer des dirigeants PME';
+    html += `<div style="margin:4px 2px 8px;padding:6px 10px;background:rgba(242,101,34,.07);border:1px solid rgba(242,101,34,.2);border-radius:5px;">
+      <div style="font-size:.58rem;color:var(--or);font-family:'Syne',sans-serif;font-weight:700;">${cibleLabel}</div>
+      <div style="font-size:.56rem;color:var(--muted);margin-top:2px;">Adapté à la voix sélectionnée — changez la voix pour voir l'autre set</div>
+    </div>`;
+  }
+
+  // Enjeux banner
+  if (data.enjeux && data.enjeux.length) {
+    const fnLabel = fn === 'KAIROS' ? 'Kairos' : fn;
+    html += `<div style="margin:4px 2px 8px;padding:8px 10px;background:rgba(58,110,150,.06);border:1px solid rgba(58,110,150,.18);border-radius:5px;">
+      <div style="font-size:.49rem;text-transform:uppercase;letter-spacing:.1em;color:var(--col-e);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:5px;">📋 Contexte — ${fnLabel}</div>
+      ${data.enjeux.map(e=>`<div style="font-size:.62rem;color:var(--muted);line-height:1.5;display:flex;gap:5px;margin-bottom:2px;"><span style="color:var(--col-e);flex-shrink:0">›</span>${e}</div>`).join('')}
+    </div>`;
+  }
+
+  // Labels adaptés selon la cible Kairos
+  const regLabels = fn === 'KAIROS' && currentMode === 'kairos-assoc'
+    ? {d:'Douleurs du directeur expérimenté', e:'Pourquoi rejoindre Kairos', q:'Questions qui font réfléchir', o:'Contexte'}
+    : fn === 'KAIROS'
+    ? {d:'Douleurs du dirigeant PME', e:'Expertise & modèle Kairos', q:'Questions dirigeant', o:'Contexte'}
+    : REG_LABELS;
+
+  REG_ORDER.forEach(r => {
+    if (!byReg[r].length) return;
+    html += `<div class="reg-lbl"><div class="reg-dot" style="background:${REG_COLORS[r]}"></div>${regLabels[r]||REG_LABELS[r]}</div>`;
+    byReg[r].forEach(t => {
+      html += `<button class="theme-btn" onclick="selectTheme(${t.idx})">
+        <div class="tb-dot" style="background:${REG_COLORS[t.r]}"></div>
+        <div><div class="tb-lbl">${t.l}</div><span class="tb-hint">${t.h}</span></div>
+      </button>`;
+    });
+  });
+
+  document.getElementById('sbThemes').innerHTML = html;
+}
+
+function getActiveDataKey() {
+  return currentFn === 'KAIROS' ? getKairosDataKey() : currentFn;
+}
+
+function getVisualIdx(dataIdx) {
+  const themes = THEMES[getActiveDataKey()].themes;
+  const ordered = [];
+  REG_ORDER.forEach(r => themes.forEach((t,i) => { if(t.r===r) ordered.push(i); }));
+  return ordered.indexOf(dataIdx);
+}
+
+function selectTheme(idx) {
+  const dataKey = getActiveDataKey();
+  const t = THEMES[dataKey].themes[idx];
+  document.querySelectorAll('.theme-btn').forEach((b,i) => b.classList.toggle('active', i===getVisualIdx(idx)));
+  const regLabel = {d:'Douleur nommée',e:'Partage d\'expertise',q:'Question dirigeant',o:'Enjeu légal / obligation'}[t.r];
+  const displayFn = currentFn === 'KAIROS'
+    ? (currentMode === 'kairos-assoc' ? 'Kairos → Associés' : 'Kairos → Dirigeants')
+    : currentFn;
+  currentCtx = {title:`${displayFn} · ${t.l}`, type:'theme', fn:currentFn, idx};
+  callAgent(
+    `Génère 3 scripts LinkedIn complémentaires sur :\n- Thème : ${t.l}\n- Angle : ${t.h}\n- Registre : ${regLabel}\n\nScript 1 : cadre PAS\nScript 2 : cadre AIDA ou BAB\nScript 3 : cadre 4P ou Storytelling\n\nQuestion réflexive DM finale sur chaque script.`,
+    `${displayFn} · ${t.l}`,
+    t.r
+  );
+}
+
+// ════════════════════════════════════════════
+// THÈME LIBRE
+// ════════════════════════════════════════════
+function generateFree() {
+  const val = document.getElementById('freeInput').value.trim();
+  if (!val) return;
+  const reg = document.getElementById('freeRegistre').value;
+  document.getElementById('freeInput').value = '';
+  const entry = {id:Date.now(), theme:val, reg};
+  savedThemes.unshift(entry);
+  if (savedThemes.length > 30) savedThemes = savedThemes.slice(0,30);
+  localStorage.setItem('kairos_saved_themes', JSON.stringify(savedThemes));
+  renderSaved();
+  currentCtx = {title:val, type:'free'};
+  callAgent(
+    `Génère 3 scripts LinkedIn complémentaires sur :\n"${val}"\nRegistre : ${reg==='auto'?'automatique':reg}\n\nScript 1 (PAS) · Script 2 (AIDA/BAB) · Script 3 (4P/Storytelling)\nQuestion réflexive DM finale.`,
+    val, 'auto'
+  );
+}
+
+function renderSaved() {
+  const el = document.getElementById('savedList');
+  if (!el) return;
+  el.innerHTML = savedThemes.map(t => `
+    <div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:3px;">
+      <button class="saved-btn" style="flex:1" onclick="reloadTheme(${t.id})">
+        <span class="saved-btn-title">${t.theme}</span>
+        <span class="saved-btn-meta">${t.reg==='auto'?'Auto':t.reg}</span>
+      </button>
+      <button onclick="deleteTheme(${t.id})" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.72rem;padding:5px 3px;flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+function reloadTheme(id) {
+  const t = savedThemes.find(x=>x.id===id);
+  if (!t) return;
+  currentCtx = {title:t.theme, type:'free'};
+  callAgent(`Génère 3 scripts LinkedIn sur : "${t.theme}"\nRegistre : ${t.reg==='auto'?'automatique':t.reg}\nScript 1 (PAS) · Script 2 (AIDA/BAB) · Script 3 (4P/Storytelling)`, t.theme, 'auto');
+}
+
+function deleteTheme(id) {
+  savedThemes = savedThemes.filter(x=>x.id!==id);
+  localStorage.setItem('kairos_saved_themes', JSON.stringify(savedThemes));
+  renderSaved();
+}
+
+function regen() {
+  if (!currentCtx) return;
+  if (currentCtx.type==='theme') selectTheme(currentCtx.idx);
+  else if (currentCtx.type==='free') reloadTheme(savedThemes[0]?.id);
+}
+
+// ════════════════════════════════════════════
+// HISTORIQUE
+// ════════════════════════════════════════════
+function saveHistory(title, s) {
+  const entry = {id:Date.now(), title, assoc:getAssocName(), fn:currentFn, date:new Date().toLocaleDateString('fr-FR'), scripts:s};
+  history.unshift(entry);
+  if (history.length > 60) history = history.slice(0,60);
+  localStorage.setItem('kairos_history', JSON.stringify(history));
+  buildAssocFilter();
+}
+
+function buildAssocFilter() {
+  const sel = document.getElementById('histFilterAssoc');
+  if (!sel) return;
+  const names = [...new Set(history.map(h=>h.assoc))];
+  sel.innerHTML = '<option value="all">Tous les associés</option>' + names.map(n=>`<option value="${n}">${n}</option>`).join('');
+}
+
+function renderHistory() {
+  const el = document.getElementById('histList');
+  if (!el) return;
+  const search = (document.getElementById('histSearch')?.value||'').toLowerCase();
+  const assocFilter = document.getElementById('histFilterAssoc')?.value || 'all';
+  let filtered = history;
+  if (assocFilter !== 'all') filtered = filtered.filter(h=>h.assoc===assocFilter);
+  if (search) filtered = filtered.filter(h=>h.title.toLowerCase().includes(search));
+  if (!filtered.length) { el.innerHTML='<div style="font-size:.66rem;color:var(--muted);padding:4px">Aucun résultat.</div>'; return; }
+  el.innerHTML = filtered.map(h=>`
+    <div style="display:flex;align-items:flex-start;gap:4px;margin-bottom:3px;">
+      <button class="saved-btn" style="flex:1" onclick="loadHistory(${h.id})">
+        <span class="saved-btn-title">${h.title}</span>
+        <span class="saved-btn-meta">${h.date} · ${h.assoc} · ${h.fn}</span>
+      </button>
+      <button onclick="deleteHistory(${h.id})" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.72rem;padding:5px 3px;flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+function loadHistory(id) {
+  const entry = history.find(h=>h.id===id);
+  if (!entry) return;
+  scripts = entry.scripts;
+  currentCtx = {title:entry.title, type:'history'};
+  renderScripts(entry.title);
+}
+
+function deleteHistory(id) {
+  history = history.filter(h=>h.id!==id);
+  localStorage.setItem('kairos_history', JSON.stringify(history));
+  renderHistory();
+}
+
+// ════════════════════════════════════════════
+// VALIDÉS
+// ════════════════════════════════════════════
+function renderValidated() {
+  const el = document.getElementById('valList');
+  if (!el) return;
+  if (!validatedPosts.length) { el.innerHTML='<div style="font-size:.66rem;color:var(--muted);padding:4px">Aucun post validé.</div>'; return; }
+  el.innerHTML = validatedPosts.map(p=>`
+    <div class="val-item">
+      <div class="val-item-head">
+        <div>
+          <div class="val-item-title">${p.title}</div>
+          <div class="val-item-meta">${p.date} · ${p.assoc} · Angle: ${p.angle||'—'}</div>
+        </div>
+        <button onclick="deleteValidated(${p.id})" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.7rem;flex-shrink:0">✕</button>
+      </div>
+      <div class="val-metrics">
+        <label>Perf :</label>
+        <input class="val-metric-input" placeholder="❤ Likes" value="${p.likes||''}" onchange="updateMetric(${p.id},'likes',this.value)"/>
+        <input class="val-metric-input" placeholder="💬 Comm." value="${p.comments||''}" onchange="updateMetric(${p.id},'comments',this.value)"/>
+        <input class="val-metric-input" placeholder="✉ DM" value="${p.dms||''}" onchange="updateMetric(${p.id},'dms',this.value)"/>
+      </div>
+    </div>`).join('');
+}
+
+function updateMetric(id, field, val) {
+  const p = validatedPosts.find(x=>x.id===id);
+  if (p) { p[field]=val; localStorage.setItem('kairos_validated', JSON.stringify(validatedPosts)); }
+}
+
+function deleteValidated(id) {
+  validatedPosts = validatedPosts.filter(x=>x.id!==id);
+  localStorage.setItem('kairos_validated', JSON.stringify(validatedPosts));
+  renderValidated();
+}
+
+function validatePost(i) {
+  const s = scripts[i];
+  if (!s) return;
+  const entry = {id:Date.now(), title:document.getElementById('panelTitle').textContent, assoc:getAssocName(), angle:s.angle, date:new Date().toLocaleDateString('fr-FR')};
+  validatedPosts.unshift(entry);
+  if (validatedPosts.length > 50) validatedPosts = validatedPosts.slice(0,50);
+  localStorage.setItem('kairos_validated', JSON.stringify(validatedPosts));
+  const btn = document.getElementById('valbtn'+i);
+  if (btn) { btn.textContent='✓ Validé'; btn.classList.add('ok'); setTimeout(()=>{btn.textContent='✦ Valider';btn.classList.remove('ok');},3000); }
+}
+
+// ════════════════════════════════════════════
+// FEEDBACK 👍 👎
+// ════════════════════════════════════════════
+function saveFeedbacks() { localStorage.setItem('kairos_feedbacks', JSON.stringify(feedbacks)); }
+
+function updateFbBadge() {
+  const el = document.getElementById('fbBadge');
+  if (!el) return;
+  const name = getAssocName();
+  const fb = feedbacks[name] || {liked:[],disliked:[]};
+  const total = fb.liked.length + fb.disliked.length;
+  el.innerHTML = total===0
+    ? `✦ Aucun feedback pour ${name.split(' ')[0]}`
+    : `✦ ${name.split(' ')[0]} : <strong>${fb.liked.length}</strong> 👍 · <strong>${fb.disliked.length}</strong> 👎 — voir`;
+}
+
+function likeScript(i) {
+  const s = scripts[i];
+  const name = getAssocName();
+  if (!feedbacks[name]) feedbacks[name] = {liked:[],disliked:[]};
+  feedbacks[name].liked.unshift({angle:s.angle||'',excerpt:(s.post||'').substring(0,200),date:new Date().toLocaleDateString('fr-FR')});
+  if (feedbacks[name].liked.length>20) feedbacks[name].liked = feedbacks[name].liked.slice(0,20);
+  saveFeedbacks(); updateFbBadge();
+  const btn = document.getElementById('likebtn'+i);
+  if (btn) { btn.textContent='👍 Enregistré'; setTimeout(()=>btn.textContent='👍',2500); }
+}
+
+function dislikeScript(i) {
+  const zone = document.getElementById('fbzone'+i);
+  if (zone) { zone.style.display='block'; document.getElementById('fbinput'+i)?.focus(); }
+}
+
+function cancelDislike(i) {
+  const zone = document.getElementById('fbzone'+i);
+  if (zone) zone.style.display='none';
+  const inp = document.getElementById('fbinput'+i);
+  if (inp) inp.value='';
+}
+
+function saveDislike(i) {
+  const s = scripts[i];
+  const inp = document.getElementById('fbinput'+i);
+  const reason = inp?.value.trim();
+  if (!s || !reason) { if(inp){inp.style.borderColor='var(--rouge)';setTimeout(()=>inp.style.borderColor='',2000);} return; }
+  const name = getAssocName();
+  if (!feedbacks[name]) feedbacks[name] = {liked:[],disliked:[]};
+  feedbacks[name].disliked.unshift({reason,angle:s.angle||'',excerpt:(s.post||'').substring(0,150),date:new Date().toLocaleDateString('fr-FR')});
+  if (feedbacks[name].disliked.length>20) feedbacks[name].disliked = feedbacks[name].disliked.slice(0,20);
+  saveFeedbacks(); updateFbBadge();
+  cancelDislike(i);
+  const btn = document.getElementById('dislikebtn'+i);
+  if (btn) { btn.textContent='👎 Noté'; setTimeout(()=>btn.textContent='👎',2500); }
+}
+
+function getFeedbackCtx() {
+  const name = getAssocName();
+  const fb = feedbacks[name];
+  if (!fb || (!fb.liked.length && !fb.disliked.length)) return '';
+  let ctx = `\n\nFEEDBACKS pour ${name} (respecter strictement) :`;
+  if (fb.liked.length) {
+    ctx += '\nEXEMPLES VALIDÉS — reproduire ce style :\n';
+    fb.liked.slice(0,4).forEach(f => ctx += `- "${f.excerpt.substring(0,100)}…"\n`);
+  }
+  if (fb.disliked.length) {
+    ctx += '\nÀ ÉVITER absolument :\n';
+    fb.disliked.slice(0,4).forEach(f => ctx += `- ${f.reason}\n`);
+  }
+  return ctx;
+}
+
+function showFeedbackModal() {
+  const name = getAssocName();
+  const fb = feedbacks[name] || {liked:[],disliked:[]};
+  document.getElementById('fbModal')?.remove();
+  const m = document.createElement('div');
+  m.id='fbModal'; m.className='fb-modal-overlay';
+  m.innerHTML=`<div class="fb-modal">
+    <div class="fb-modal-head">
+      <div class="fb-modal-title">Feedbacks · ${name}</div>
+      <button class="fb-modal-close" onclick="document.getElementById('fbModal').remove()">✕</button>
+    </div>
+    <div class="fb-modal-body">
+      ${fb.liked.length===0&&fb.disliked.length===0
+        ?'<div style="font-size:.76rem;color:var(--muted);text-align:center;padding:28px 0">Aucun feedback.<br>Utilisez 👍 ou 👎 sur les scripts.</div>'
+        :`${fb.liked.length?`<div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;color:var(--vert);margin-bottom:7px;font-weight:600">👍 ${fb.liked.length} validé(s)</div>
+          ${fb.liked.map((f,idx)=>`<div style="background:rgba(90,158,111,.07);border-left:2px solid var(--vert);padding:7px 10px;margin-bottom:5px;border-radius:0 4px 4px 0;font-size:.7rem;">
+            <div style="display:flex;justify-content:space-between;align-items:start;gap:5px;margin-bottom:2px;">
+              <span style="font-size:.56rem;color:var(--muted)">${f.angle.substring(0,40)} · ${f.date}</span>
+              <button onclick="removeFb('liked',${idx})" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.68rem;flex-shrink:0">✕</button>
+            </div>
+            <div style="color:var(--blanc2);line-height:1.5">${f.excerpt}…</div>
+          </div>`).join('')}`:''}
+        ${fb.disliked.length?`<div style="font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;color:var(--rouge);margin:12px 0 7px;font-weight:600">👎 ${fb.disliked.length} à éviter</div>
+          ${fb.disliked.map((f,idx)=>`<div style="background:rgba(200,80,80,.06);border-left:2px solid var(--rouge);padding:7px 10px;margin-bottom:5px;border-radius:0 4px 4px 0;font-size:.7rem;">
+            <div style="display:flex;justify-content:space-between;align-items:start;gap:5px;margin-bottom:2px;">
+              <span style="font-size:.56rem;color:var(--muted)">${f.date}</span>
+              <button onclick="removeFb('disliked',${idx})" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:.68rem;flex-shrink:0">✕</button>
+            </div>
+            <div style="color:var(--rouge);font-weight:500;margin-bottom:2px">${f.reason}</div>
+            <div style="color:var(--muted);font-size:.64rem;line-height:1.45">${f.excerpt.substring(0,100)}…</div>
+          </div>`).join('')}`:''}
+        `}
+    </div>
+    <div class="fb-modal-foot">
+      <span style="font-size:.6rem;color:var(--muted)">Ces feedbacks affinent les prochaines générations.</span>
+      ${(fb.liked.length||fb.disliked.length)?`<button onclick="clearFeedbacks('${name}')" style="background:none;border:1px solid rgba(0,0,0,0.09);border-radius:3px;padding:3px 9px;color:var(--muted);font-size:.62rem;cursor:pointer;font-family:'IBM Plex Sans',sans-serif">Tout effacer</button>`:''}
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e=>{ if(e.target===m) m.remove(); });
+}
+
+function removeFb(type, idx) {
+  const name = getAssocName();
+  if (feedbacks[name]?.[type]) { feedbacks[name][type].splice(idx,1); saveFeedbacks(); updateFbBadge(); showFeedbackModal(); }
+}
+
+function clearFeedbacks(name) {
+  if (confirm(`Effacer tous les feedbacks pour ${name} ?`)) {
+    feedbacks[name] = {liked:[],disliked:[]}; saveFeedbacks(); updateFbBadge(); document.getElementById('fbModal')?.remove();
+  }
+}
+
+// ════════════════════════════════════════════
+// ÉDITION INLINE
+// ════════════════════════════════════════════
+function toggleEdit(i) {
+  const body = document.getElementById('scBody'+i);
+  const area = document.getElementById('scEdit'+i);
+  const actions = document.getElementById('scEditActions'+i);
+  const isEditing = area.style.display!=='none';
+  body.style.display = isEditing?'block':'none';
+  area.style.display = isEditing?'none':'block';
+  actions.style.display = isEditing?'none':'flex';
+}
+
+function cancelEdit(i) { toggleEdit(i); }
+
+function saveEdit(i) {
+  const area = document.getElementById('scEdit'+i);
+  const body = document.getElementById('scBody'+i);
+  if (scripts[i]) scripts[i].post = area.value;
+  body.innerHTML = area.value.replace(/\n/g,'<br>');
+  toggleEdit(i);
+}
+
+// ════════════════════════════════════════════
+// SYSTEM PROMPT DYNAMIQUE — 3 modes de voix
+// ════════════════════════════════════════════
+function getSystemPrompt(regHint) {
+  const name = getAssocName();
+  const fn = getAssocFn();
+  const fnData = THEMES[currentFn === 'KAIROS' ? getKairosDataKey() : currentFn];
+  const enjeuxStr = fnData?.enjeux?.join('\n- ') || '';
+  const jsonFormat = `FORMAT JSON strict, sans markdown. Réponds UNIQUEMENT avec du JSON valide. Structure : {"scripts":[{"id":1,"angle":"Cadre (ex: PAS · Solitude dirigeant)","post":"Texte complet","commentaire":"...","hashtags":"...","enjeu":"","visuel":{"format":"texte","description":"Brief visuel — palette #111318 / #E8541A / #FFFFFF","caption":"Texte court"}}]}`;
+
+  const KAIROS_FACTS = `
+BASE DE CONNAISSANCE KAIROS (à utiliser pour ancrer les posts dans la réalité du réseau) :
+
+MODÈLE :
+- Direction à temps partagé, facturation par abonnement mensuel (pas de TJM)
+- Les associés prennent une fonction opérationnelle avec feuille de route et engagement dans la durée
+- Pas un consultant ponctuel, pas du management de transition : un partenaire long terme intégré au quotidien
+- Chaque associé accompagne 3 à 5 PME simultanément
+- Les clients peuvent constituer un CODIR 100% temps partagé avec plusieurs associés Kairos
+- On ne compte pas son temps — on est focus sur le résultat
+
+RÉSEAU :
+- ~40 associés, structurés en agences régionales, objectif national
+- Chaque associé est entrepreneur indépendant (SASU, EURL, EI — pas de portage)
+- Chaque membre devient associé minoritaire de l'entreprise Kairos
+- Coopération et passage d'affaires entre membres, pas de concurrence interne
+- Premier réseau de direction à temps partagé labellisé LUCIE (RSE)
+
+DIFFÉRENCIANTS vs concurrents (BDD, Finaxim, Acting) :
+- Abonnement mensuel vs facturation à la journée
+- Implication opérationnelle totale vs conseil
+- Intelligence collective et richesse humaine vs isolement du freelance
+- Liberté de choisir ses missions et ses tarifs
+- 100% du CA conservé, déduction faite de la redevance mensuelle`;
+
+  if (currentMode === 'kairos-dirigeant') {
+    return `Tu es l'agent rédacteur LinkedIn de Kairos pour attirer des dirigeants de PME/ETI.
+
+MISSION : créer de la notoriété pour le modèle Kairos, générer de la reconnaissance chez les dirigeants, provoquer des prises de contact entrantes.
+
+${KAIROS_FACTS}
+
+CIBLE : dirigeants de PME/ETI (50-500 salariés), souvent seuls face à leurs enjeux de direction, sans cadre dédié, qui hésitent entre recruter en CDI (trop risqué) et passer par un consultant (trop ponctuel).
+
+MESSAGES CLÉS À INCARNER :
+- Un directeur Kairos prend une fonction, s'engage dans la durée, ne facture pas à l'heure
+- C'est un business partner, pas un prestataire
+- Le modèle abonnement = prévisibilité pour le client, implication pour l'associé
+- Kairos peut composer un CODIR complet à temps partagé
+
+TON : direct, incarné, terrain. Parle au dirigeant comme à un pair. Jamais condescendant.
+INTERDIT : "solution clé en main", "expertise de pointe", "sur-mesure", jargon conseil, nommer des concurrents.
+
+RÈGLES LINKEDIN : 130-160 mots max, question DM finale naturelle, lien en commentaire uniquement.
+COMMENTAIRE : "Kairos · Directeurs externalisés à temps partagé\\nUn directeur expérimenté. Présent. Sans CDI.\\nwww.kairos.group"
+HASHTAGS : 5-7 dont #DirectionExternalisée #PME #Kairos #DirigeantPME
+
+${jsonFormat}
+Génère 3 scripts : Script 1 (PAS) · Script 2 (AIDA ou BAB) · Script 3 (4P ou Storytelling).${getFeedbackCtx()}`;
+  }
+
+  if (currentMode === 'kairos-assoc') {
+    return `Tu es l'agent rédacteur LinkedIn de Kairos pour attirer de futurs associés directeurs.
+
+MISSION : donner envie à des directeurs expérimentés de rejoindre Kairos. Créer de la reconnaissance, pas recruter au sens RH du terme.
+
+${KAIROS_FACTS}
+
+PROFIL CIBLE :
+- Cadres dirigeants 35-65 ans, 15-25 ans d'expérience en direction (DAF, DRH, Dir. Commercial, DSI, Dir. Achats, DG)
+- Ex-dirigeants de groupes ou PME qui veulent entreprendre sans perdre l'opérationnel
+- Personnes déjà indépendantes cherchant un collectif et une marque
+- Dirigeants ayant vendu ou quitté leur société qui ne veulent pas s'arrêter
+- Profils encore salariés en phase active de transition
+
+CE QU'ILS CRAIGNENT : l'isolement du freelance, l'incertitude commerciale, la perte de statut
+CE QU'ILS CHERCHENT : impact, liberté, revenu maintenu, appartenance à un collectif solide
+
+CE QUE KAIROS APPORTE RÉELLEMENT :
+- Parcours d'intégration structuré + mentor/parrain
+- Kit prospection, formations (LinkedIn, pitch, offre), outils marketing
+- Marque et licence d'exploitation de la marque Kairos
+- Agences régionales, réunions mensuelles, séminaire national annuel
+- Intelligence collective, passage d'affaires entre membres
+- Statut d'associé minoritaire de l'entreprise Kairos
+- 100% du CA conservé (hors redevance mensuelle)
+- Contrat 3 ans renouvelable
+
+TON : empathique, inspirant, ancré dans le vécu d'un directeur expérimenté. Voix d'un collectif qui parle à un pair potentiel.
+INTERDIT : "rejoignez notre équipe", "postulez", "offre d'emploi", tout vocabulaire RH classique, promettre des contrats.
+
+RÈGLES LINKEDIN : 130-160 mots max, question DM douce et ouverte, lien en commentaire uniquement.
+COMMENTAIRE : "Kairos · Réseau de directeurs externalisés à temps partagé\\nVous êtes directeur·rice expérimenté·e ? Parlons-en.\\nwww.kairos.group"
+HASHTAGS : 5-7 dont #DirectionExternalisée #Kairos #CarrièreDirection #Indépendant #Entrepreneuriat
+
+${jsonFormat}
+Génère 3 scripts : Script 1 (PAS) · Script 2 (BAB) · Script 3 (Storytelling).${getFeedbackCtx()}`;
+  }
+
+  // ── Mode associé signataire (défaut) ──
+  return `Tu es l'agent rédacteur LinkedIn de ${name}, directeur·rice associé·e au réseau Kairos, expert·e en ${fn}.
+
+${KAIROS_FACTS}
+
+${name.toUpperCase()} : Directeur·rice associé·e Kairos, fonction : ${fn}. Expérience significative en direction d'entreprise avant Kairos. Ton : direct, terrain, sans jargon, chaleureux.
+
+CIBLE : dirigeants de PME/ETI — pragmatiques, méfiants du conseil abstrait, sensibles au ROI concret et au rapport humain.
+
+ENJEUX & OBLIGATIONS (${currentFn}) :
+- ${enjeuxStr}
+(Intégrer naturellement si le thème s'y prête — jamais comme exposé magistral)
+
+RÈGLES LINKEDIN : 130-160 mots max, ton empathique terrain, question DM finale, lien en commentaire.
+INTERDIT : tirets longs séparateurs, guillemets construits, "toujours/jamais", jargon corporate, entreprises tierces nommées.
+
+COMMENTAIRE : "Kairos accompagne les dirigeants de PME avec des directeurs expérimentés à temps partagé.\\nwww.kairos.group | ${name} · ${fn}"
+HASHTAGS : 5-7 dont #DirectionExternalisée #PME #Kairos + 2-3 spécifiques à la fonction ${currentFn}
+
+${jsonFormat}
+Génère 3 scripts : Script 1 (PAS) · Script 2 (AIDA ou BAB) · Script 3 (4P ou Storytelling).${getFeedbackCtx()}`;
+}
+
+// ════════════════════════════════════════════
+// VEILLE JURIDIQUE & RÉGLEMENTAIRE
+// ════════════════════════════════════════════
+
+const VEILLE_QUERIES = {
+  RH: "obligations légales RH PME France 2025 2026 : entretiens professionnels, transparence salariale, index égalité, formation, QVCT",
+  DAF: "obligations légales finance PME France 2025 2026 : facture électronique, CSRD, délais paiement, fiscalité, liasse fiscale",
+  DG: "obligations légales direction PME France 2025 2026 : Loi Rixain, NIS2, gouvernance, raison être, RGPD, transmission",
+  Achats: "obligations légales achats supply chain PME France 2025 2026 : devoir vigilance, AGEC, RSE fournisseurs, anti-corruption",
+  IT: "obligations légales DSI PME France 2025 2026 : NIS2 cybersécurité, RGPD, IA Act, facture électronique SI",
+  DC: "obligations légales commercial PME France 2025 2026 : RGPD prospection, délais paiement CGV, anti-corruption Sapin 2"
+};
+
+const VEILLE_SYSTEM = `Tu es un expert juridique et réglementaire français spécialisé dans les obligations des PME/ETI.
+Nous sommes en juin 2026. Tu dois identifier les obligations légales ET les enjeux réglementaires actuels et à venir pour la fonction demandée.
+
+Réponds UNIQUEMENT avec un JSON valide, sans markdown ni texte autour.
+Format : {"enjeux": ["Texte court et factuel, max 90 caractères", "...", "...", "...", "..."]}
+
+Règles :
+- 4 à 6 enjeux maximum, les plus impactants pour une PME de 50-250 salariés
+- Chaque enjeu doit mentionner la loi/directive ET l'impact concret
+- Priorise ce qui est entré en vigueur en 2024-2026 ou qui arrive prochainement
+- Sois factuel, précis, sans jargon excessif`;
+
+let veilleData = {};  // stockage des résultats de veille par fonction
+
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('kairos_veille');
+  if (saved) { try { veilleData = JSON.parse(saved); applyVeilleToThemes(); } catch(e){} }
+  const lastUpdate = localStorage.getItem('kairos_veille_date');
+  if (lastUpdate) {
+    const el = document.getElementById('veilleLastUpdate');
+    if (el) el.textContent = `Dernière mise à jour : ${lastUpdate}`;
+  }
+});
+
+async function runVeille(fn) {
+  if (!API_KEY) { alert('Clé API manquante.'); return; }
+  const btn = document.querySelector(`.veille-fn-btn[onclick="runVeille('${fn}')"]`);
+  if (btn) { btn.classList.add('running'); btn.textContent = '⏳ ' + fn; }
+
+  logVeille(`🔍 Recherche en cours pour ${fn}…`, 'info');
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: VEILLE_SYSTEM,
+        messages: [{
+          role: 'user',
+          content: `Nous sommes en juin 2026. Effectue une recherche web sur : "${VEILLE_QUERIES[fn]}"
+Puis liste les 4 à 6 obligations légales et enjeux réglementaires les plus importants pour une PME française en 2026 concernant la fonction ${fn}.
+Réponds uniquement en JSON : {"enjeux": ["...", "...", ...]}`
+        }]
+      })
+    });
+
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+
+    // Extraire le texte de la réponse (après le tool_use éventuel)
+    const textBlocks = (d.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    if (!textBlocks) throw new Error('Pas de réponse texte de l\'API');
+
+    const parsed = parseJSON(textBlocks);
+    if (!parsed?.enjeux?.length) throw new Error('JSON invalide ou enjeux vides');
+
+    // Sauvegarder et appliquer
+    veilleData[fn] = { enjeux: parsed.enjeux, date: new Date().toLocaleDateString('fr-FR') };
+    localStorage.setItem('kairos_veille', JSON.stringify(veilleData));
+
+    // Mettre à jour THEMES dynamiquement
+    if (THEMES[fn]) THEMES[fn].enjeux = parsed.enjeux;
+
+    const now = new Date().toLocaleString('fr-FR');
+    localStorage.setItem('kairos_veille_date', now);
+    const el = document.getElementById('veilleLastUpdate');
+    if (el) el.textContent = `Dernière mise à jour : ${now}`;
+
+    if (btn) { btn.classList.remove('running'); btn.classList.add('done'); btn.textContent = '✓ ' + fn; }
+    logVeille(`✓ ${fn} mis à jour — ${parsed.enjeux.length} enjeux`, 'success', fn, parsed.enjeux);
+
+    // Rafraîchir l'affichage si on est sur cet onglet
+    if (currentFn === fn) renderThemes(fn);
+
+  } catch(e) {
+    if (btn) { btn.classList.remove('running'); btn.textContent = fn; }
+    logVeille(`✗ Erreur ${fn} : ${e.message}`, 'error');
+  }
+}
+
+async function runVeilleAll() {
+  if (!API_KEY) { alert('Clé API manquante.'); return; }
+  const btn = document.getElementById('veilleAllBtn');
+  if (btn) { btn.style.opacity = '.4'; btn.textContent = '⏳ Mise à jour en cours…'; btn.disabled = true; }
+
+  const fns = ['RH', 'DAF', 'DG', 'Achats', 'IT', 'DC'];
+  for (const fn of fns) {
+    await runVeille(fn);
+    await new Promise(r => setTimeout(r, 800)); // pause entre requêtes
+  }
+
+  if (btn) { btn.style.opacity = '1'; btn.textContent = '✓ Toutes les fonctions mises à jour'; btn.disabled = false;
+    setTimeout(() => { btn.textContent = '↻ Mettre à jour toutes les fonctions'; }, 3000);
+  }
+}
+
+function applyVeilleToThemes() {
+  Object.keys(veilleData).forEach(fn => {
+    if (THEMES[fn] && veilleData[fn]?.enjeux) {
+      THEMES[fn].enjeux = veilleData[fn].enjeux;
+    }
+  });
+}
+
+function logVeille(msg, type, fn, enjeux) {
+  const log = document.getElementById('veilleLog');
+  if (!log) return;
+
+  if (type === 'info') {
+    // Juste un message temporaire
+    const existing = document.getElementById('veilleInfo');
+    if (existing) existing.remove();
+    const el = document.createElement('div');
+    el.id = 'veilleInfo';
+    el.style.cssText = 'font-size:.62rem;color:var(--muted);font-style:italic;padding:3px 0;';
+    el.textContent = msg;
+    log.prepend(el);
+    return;
+  }
+
+  // Supprimer le message info temporaire
+  document.getElementById('veilleInfo')?.remove();
+
+  if (type === 'error') {
+    const el = document.createElement('div');
+    el.style.cssText = 'font-size:.62rem;color:var(--rouge);padding:3px 0 6px;';
+    el.textContent = msg;
+    log.prepend(el);
+    return;
+  }
+
+  if (type === 'success' && fn && enjeux) {
+    // Supprimer l'entrée précédente pour cette fonction si elle existe
+    document.getElementById('veille-entry-' + fn)?.remove();
+
+    const entry = document.createElement('div');
+    entry.id = 'veille-entry-' + fn;
+    entry.className = 'veille-entry';
+    entry.innerHTML = `
+      <div class="veille-entry-fn">${fn}</div>
+      <div class="veille-entry-date">Mis à jour le ${new Date().toLocaleString('fr-FR')}</div>
+      ${enjeux.map(e => `<div class="veille-entry-item">${e}</div>`).join('')}
+    `;
+    log.prepend(entry);
+
+    // Vider le placeholder si présent
+    const placeholder = log.querySelector('[style*="font-style:italic"]');
+    if (placeholder && placeholder.textContent.includes('Aucune')) placeholder.remove();
+  }
+}
+
+function renderVeilleLog() {
+  const log = document.getElementById('veilleLog');
+  if (!log) return;
+
+  if (!Object.keys(veilleData).length) {
+    log.innerHTML = '<div style="font-size:.62rem;color:var(--muted2);font-style:italic">Aucune mise à jour effectuée.</div>';
+    return;
+  }
+
+  log.innerHTML = Object.entries(veilleData)
+    .sort((a,b) => a[0].localeCompare(b[0]))
+    .map(([fn, d]) => `
+      <div class="veille-entry" id="veille-entry-${fn}">
+        <div class="veille-entry-fn">${fn}</div>
+        <div class="veille-entry-date">Mis à jour le ${d.date}</div>
+        ${(d.enjeux||[]).map(e => `<div class="veille-entry-item">${e}</div>`).join('')}
+      </div>
+    `).join('');
+}
+
+// ════════════════════════════════════════════
+
+function parseJSON(raw) {
+  let cleaned = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start===-1||end===-1) throw new Error('Pas de JSON trouvé — Régénérez.');
+  cleaned = cleaned.substring(start,end+1);
+  try { return JSON.parse(cleaned); } catch(e1){}
+  let attempt = cleaned.replace(/,(\s*[}\]])/g,'$1');
+  try { return JSON.parse(attempt); } catch(e2){}
+  attempt = attempt.replace(/"((?:[^"\\]|\\.)*)"/g,(m,inner)=>'"'+inner.replace(/\r/g,'').replace(/\t/g,' ')+'"');
+  try { return JSON.parse(attempt); } catch(e3) { throw new Error('JSON malformé — Régénérez.'); }
+}
+
+// ════════════════════════════════════════════
+// CALL AGENT
+// ════════════════════════════════════════════
+async function callAgent(prompt, title, regHint) {
+  if (!API_KEY) { API_KEY = localStorage.getItem('kairos_api_key')||''; }
+  if (!API_KEY) { alert('Clé API manquante. Saisissez-la et cliquez ✓.'); return; }
+  showLoad('Génération de 3 scripts en cours…');
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,system:getSystemPrompt(regHint),messages:[{role:'user',content:prompt}]})
+    });
+    const d = await r.json();
+    if (d.error) throw new Error('API: '+d.error.message);
+    const raw = (d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    let parsed;
+    try { parsed = parseJSON(raw); } catch(pe) { hideLoad(); alert('Erreur parsing : '+pe.message); return; }
+    if (!parsed?.scripts?.length) { hideLoad(); alert('Aucun script dans la réponse.'); return; }
+    scripts = parsed.scripts;
+    saveHistory(title, scripts);
+    renderScripts(title);
+  } catch(e) { hideLoad(); alert('Erreur : '+e.message); }
+}
+
+// ════════════════════════════════════════════
+// REFINE
+// ════════════════════════════════════════════
+async function refine() {
+  const inst = document.getElementById('rfInput').value.trim();
+  if (!inst || !scripts.length) return;
+  const target = document.getElementById('rfTarget').value;
+  document.getElementById('rfInput').value = '';
+  showLoad('Affinage en cours…');
+  const ctx = target==='all'
+    ? scripts.map((s,i)=>`Script ${i+1} (${s.angle}):\n${s.post}`).join('\n\n---\n\n')
+    : `Script ${+target+1} (${scripts[+target].angle}):\n${scripts[+target].post}`;
+  const instr = target==='all'
+    ? `Applique à tous : ${inst}`
+    : `Applique uniquement au script ${+target+1}, garde les autres identiques : ${inst}`;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,system:getSystemPrompt('auto')+getFeedbackCtx(),messages:[{role:'user',content:`Scripts actuels :\n\n${ctx}\n\n${instr}\n\nRéponds avec le JSON complet des ${scripts.length} scripts.`}]})
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    const raw = (d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    scripts = parseJSON(raw).scripts;
+    renderScripts(document.getElementById('panelTitle').textContent);
+    if (target!=='all') showTab(+target);
+  } catch(e) { hideLoad(); alert('Erreur affinage : '+e.message); }
+}
+
+// ════════════════════════════════════════════
+// RENDER SCRIPTS
+// ════════════════════════════════════════════
+function normalizeFormat(f) {
+  if (!f) return 'texte';
+  const fl = String(f).toLowerCase();
+  if (fl.includes('photo')) return 'photo';
+  if (fl.includes('carrousel')||fl.includes('carousel')) return 'carrousel';
+  return 'texte';
+}
+
+function renderScripts(title) {
+  hideLoad();
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('scriptsPanel').classList.add('vis');
+  document.getElementById('footer').classList.add('vis');
+  document.getElementById('panelTitle').textContent = title;
+
+  document.getElementById('scriptContent').innerHTML = scripts.map((s,i) => {
+    const fmtNorm = normalizeFormat(s.visuel?.format);
+    const fmtCls = fmtNorm==='photo'?'fmt-photo':fmtNorm==='carrousel'?'fmt-carrousel':'fmt-texte';
+    const commentaire = (s.commentaire||`Kairos accompagne les dirigeants de PME avec des directeurs expérimentés à temps partagé.\nwww.kairos.group | ${getAssocName()} · ${getAssocFn()}`).replace(/\n/g,'<br>');
+    const enjeu = s.enjeu || '';
+
+    return `<div class="script-pane ${i===0?'active':''}" id="pane${i}">
+      <div class="sc-card">
+        <div class="sc-head">
+          <div class="sc-lbl">Script ${i+1} · ${s.angle||''}</div>
+          <div class="sc-actions">
+            <button class="sc-btn" id="cpbtn${i}" onclick="copyScript(${i})">Copier</button>
+            <button class="sc-btn sc-btn-edit" onclick="toggleEdit(${i})">✎ Éditer</button>
+            <button class="sc-btn sc-btn-like" id="likebtn${i}" onclick="likeScript(${i})">👍</button>
+            <button class="sc-btn sc-btn-dislike" id="dislikebtn${i}" onclick="dislikeScript(${i})">👎</button>
+            <button class="sc-btn sc-btn-val" id="valbtn${i}" onclick="validatePost(${i})">✦ Valider</button>
+          </div>
+        </div>
+        <div class="feedback-zone" id="fbzone${i}">
+          <div class="feedback-zone-lbl">Pourquoi à retravailler ?</div>
+          <textarea class="feedback-textarea" id="fbinput${i}" placeholder="Ex: trop corporatif, ton dramatisé, manque d'ancrage terrain…"></textarea>
+          <div class="feedback-actions">
+            <button class="fb-cancel" onclick="cancelDislike(${i})">Annuler</button>
+            <button class="fb-save" onclick="saveDislike(${i})">Enregistrer</button>
+          </div>
+        </div>
+        <div class="sc-body" id="scBody${i}">${(s.post||'').replace(/\n/g,'<br>')}</div>
+        <textarea class="sc-edit-area" id="scEdit${i}">${s.post||''}</textarea>
+        <div class="sc-edit-actions" id="scEditActions${i}">
+          <button class="ea-cancel" onclick="cancelEdit(${i})">Annuler</button>
+          <button class="ea-save" onclick="saveEdit(${i})">✓ Valider</button>
+        </div>
+        <div class="sc-footer">
+          <div class="sc-comment-box">
+            <div class="sc-comment-lbl">💬 Premier commentaire</div>
+            <div class="sc-comment-txt">${commentaire}</div>
+          </div>
+          <div class="sc-hashtags">${s.hashtags||''}</div>
+        </div>
+        ${enjeu?`<div class="enjeux-zone"><div class="enjeux-lbl">📋 Enjeu légal associé</div><div class="enjeux-item">${enjeu}</div></div>`:''}
+      </div>
+      <div class="vis-card">
+        <div class="vis-head">
+          <div class="vis-badge">Visuel suggéré</div>
+          <div class="fmt-badge ${fmtCls}">${fmtNorm}</div>
+        </div>
+        <div class="vis-desc">${s.visuel?.description||''}</div>
+        <div class="vis-caption">${s.visuel?.caption||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('scriptTabs').innerHTML = scripts.map((s,i)=>
+    `<button class="stab ${i===0?'active':''}" onclick="showTab(${i})">Script ${i+1}</button>`
+  ).join('');
+
+  const rf = document.getElementById('rfTarget');
+  if (rf) {
+    rf.innerHTML = scripts.map((s,i)=>`<option value="${i}">Script ${i+1}</option>`).join('')+'<option value="all">Tous</option>';
+    rf.value='0';
+  }
+}
+
+function showTab(i) {
+  document.querySelectorAll('.stab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.script-pane').forEach((p,j)=>p.classList.toggle('active',j===i));
+  const rf=document.getElementById('rfTarget');
+  if(rf) rf.value=i;
+}
+
+function copyScript(i) {
+  const s = scripts[i];
+  const commentaire = s.commentaire||`Kairos accompagne les dirigeants de PME avec des directeurs expérimentés à temps partagé.\nwww.kairos.group | ${getAssocName()} · ${getAssocFn()}`;
+  navigator.clipboard.writeText(`${s.post}\n\n---\nPremier commentaire :\n${commentaire}\n\n${s.hashtags||''}`);
+  const b = document.getElementById('cpbtn'+i);
+  if (b) { b.textContent='Copié ✓'; b.classList.add('ok'); setTimeout(()=>{b.textContent='Copier';b.classList.remove('ok');},2200); }
+}
+
+function showLoad(txt) {
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('scriptsPanel').classList.remove('vis');
+  document.getElementById('footer').classList.remove('vis');
+  document.getElementById('loaderTxt').textContent=txt||'Génération…';
+  document.getElementById('loader').classList.add('vis');
+}
+
+function hideLoad() { document.getElementById('loader').classList.remove('vis'); }
+</script>
+</body>
+</html>
